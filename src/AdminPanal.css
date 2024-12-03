@@ -1,0 +1,214 @@
+:root {
+  --etsy-orange: #F1641E;
+  --etsy-dark: #222222;
+  --etsy-light: #F8EBE6;
+  --etsy-gray: #595959;
+  --etsy-border: #E1E3DF;
+}
+
+.admin-panel {
+  font-family: 'Graphik Webfont', -apple-system, BlinkMacSystemFont, 'Roboto', 'Droid Sans', 'Segoe UI', 'Helvetica', Arial, sans-serif;
+  color: var(--etsy-dark);
+  background-color: #FFFFFF;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.admin-header h1 {
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--etsy-dark);
+  margin-left: 20px;
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--etsy-dark);
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: var(--etsy-light);
+  transition: left 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.admin-nav-button {
+  background: none;
+  border: none;
+  color: var(--etsy-gray);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 15px;
+  text-align: left;
+  transition: color 0.3s ease;
+}
+
+.admin-nav-button:hover,
+.admin-nav-button.active {
+  color: var(--etsy-orange);
+  background-color: rgba(241, 100, 30, 0.1);
+}
+
+.admin-content {
+  background-color: #FFFFFF;
+  border: 1px solid var(--etsy-border);
+  border-radius: 4px;
+  padding: 20px;
+  margin-left: 0;
+  transition: margin-left 0.3s ease;
+}
+
+.sidebar.open + .admin-content {
+  margin-left: 250px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: var(--etsy-gray);
+}
+
+/* Table styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  border: 1px solid var(--etsy-border);
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: var(--etsy-light);
+  font-weight: 600;
+  color: var(--etsy-dark);
+}
+
+/* Form styles */
+.admin-form {
+  display: grid;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: var(--etsy-dark);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="url"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--etsy-border);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+button {
+  background-color: var(--etsy-orange);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #E55B19;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    left: -100%;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .sidebar.open + .admin-content {
+    margin-left: 0;
+  }
+}
+
+/* Additional styles for specific sections */
+.pieces-section,
+.users-section,
+.orders-section,
+.enquiries-section,
+.products-section {
+  overflow-x: auto;
+}
+
+.filter-inputs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-inputs input,
+.filter-inputs button {
+  flex: 1;
+}
+
+.pieces-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.piece-item {
+  background-color: var(--etsy-light);
+  border: 1px solid var(--etsy-border);
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 10px;
+}
