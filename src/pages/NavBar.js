@@ -47,7 +47,7 @@ const Navbar = ({ cart }) => {
       <ul className="navbar-list">
         {
         <li className="navbar-item">
-          <Link to={changeRouts[0].path} className="navbar-link" onClick = {changeAdmin}s>{changeRouts[0].label}</Link>
+          <Link to={changeRouts[0].path} className="navbar-link" onClick = {changeAdmin}>{changeRouts[0].label}</Link>
         </li>
         }
         {commonRoutes.map((route) => (
