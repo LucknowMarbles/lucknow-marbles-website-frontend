@@ -29,7 +29,6 @@ const Navbar = ({ cart }) => {
     { path: '/warehouses', label: 'Warehouses' },
     { path: '/cart', label: 'Cart' },
     { path: '/profile', label: 'Profile' },
-    { path: '/contact', label: 'Contact' },
   ];
   const changeRouts = [
     { path: '/admin/pieces', label: 'Admin' },
@@ -52,18 +51,18 @@ const Navbar = ({ cart }) => {
         </li>
         }
         {commonRoutes.map((route) => (
-          <li className="navbar-item">
+          <li className="navbar-item" key={route.path}>
             <Link to={route.path} className="navbar-link">{route.label}</Link>
           </li>
         ))}
         {
         isAdmin && (adminRoutes.map((route) => (
-          <li className="navbar-item">
+          <li className="navbar-item" key={route.path}>
             <Link to={route.path} className="navbar-link">{route.label}</Link>
           </li>
         )))}
         {!isAdmin && (userRoutes.map((route) => (
-          <li className="navbar-item">
+          <li className="navbar-item" key={route.path}>
             <Link to={route.path} className="navbar-link">{route.label}</Link>
           </li>
         )))}
