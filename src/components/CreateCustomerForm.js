@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, message } from 'antd';
+import { Form, Input, Select, Button, message, Space } from 'antd';
 import axios from 'axios';
 
 const { Option } = Select;
@@ -114,19 +114,18 @@ const CreateCustomerForm = ({ onCustomerCreated, initialPhoneNumber = '' }) => {
         label="Phone Number"
         rules={[{ required: true, message: 'Please input the phone number!' }]}
       >
-        <Input.Group compact>
+        <Space.Compact style={{ width: '100%' }}>
           <Form.Item name="phoneNumber" noStyle>
-            <Input style={{ width: 'calc(100% - 100px)' }} disabled={isPhoneVerified} />
+            <Input disabled={isPhoneVerified} />
           </Form.Item>
           <Button 
             onClick={verifyPhoneNumber} 
             loading={isVerifying}
             disabled={isPhoneVerified}
-            style={{ width: '100px' }}
           >
             {isPhoneVerified ? 'Verified' : 'Verify'}
           </Button>
-        </Input.Group>
+        </Space.Compact>
       </Form.Item>
 
       <Form.Item name="customerId" hidden>
