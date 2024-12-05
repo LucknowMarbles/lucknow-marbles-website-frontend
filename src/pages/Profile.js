@@ -19,12 +19,15 @@ const ProfilePage = () => {
         const { data } = await axios.get('http://localhost:5001/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setUser(data);
-      } catch (err) {
+      }
+      catch (err) {
         console.error('Error fetching user profile:', err);
         setError('Failed to fetch user profile');
       }
     };
+
     fetchUser();
   }, []);
 
@@ -39,8 +42,10 @@ const ProfilePage = () => {
   return (
     <div>
       <h1>Profile</h1>
-      <p>Name: {user.name}</p>
+      <p>Name: {user.username}</p>
       <p>Email: {user.email}</p>
+      <p>Phone Number: {user.phoneNumber}</p>
+      <p>User Type: {user.userType}</p>
       {/* Add more user details as needed */}
     </div>
   );
