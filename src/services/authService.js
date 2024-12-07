@@ -22,3 +22,27 @@ export const registerUser = async (userData) => {
         throw error;
     }
 }
+
+
+export const loginUser = async (credentials) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(credentials),
+        })
+
+        if (!response.ok) {
+            const errorData = await response.json()
+            throw new Error(errorData.error || "Failed to login")
+        }
+
+        const data = await response.json()
+        return data
+    }
+    catch (error) {
+        throw error
+    }
+}
