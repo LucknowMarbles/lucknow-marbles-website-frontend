@@ -3,9 +3,14 @@ import { registerUser } from '../../services/authService'
 import { USER_TYPES } from '../../constants/userTypes'
 import { validateEmail, validatePhone, validatePassword } from '../../utils/validation'
 import "../../styles/components/auth/AuthForm.css"
+import { useAuth } from '../../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 
 export default function SignupForm() {
+    const { login } = useAuth()
+    const navigate = useNavigate()
+    
     const [formData, setFormData] = useState({
         username: "",
         email: "",
@@ -50,7 +55,12 @@ export default function SignupForm() {
 
         try {
             const response = await registerUser(formData)
-            console.log(response)
+            const { message, ...userData } = response
+
+            login(userData)
+            console.log(message)
+
+            navigate('/')
         }
         catch (error) {
             setErrors({ submit: error.message })

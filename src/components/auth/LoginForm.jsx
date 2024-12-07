@@ -2,8 +2,13 @@ import { useState } from "react"
 import { loginUser } from '../../services/authService'
 import { validateEmail } from '../../utils/validation'
 import "../../styles/components/auth/AuthForm.css"
+import { useAuth } from '../../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 export default function LoginForm() {
+    const { login } = useAuth()
+    const navigate = useNavigate()
+    
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -43,7 +48,12 @@ export default function LoginForm() {
 
         try {
             const response = await loginUser(formData)
-            console.log(response)
+            const { message, ...userData } = response
+
+            login(userData)
+            console.log(message)
+
+            navigate('/')
         }
         catch (error) {
             setErrors({ submit: error.message })
