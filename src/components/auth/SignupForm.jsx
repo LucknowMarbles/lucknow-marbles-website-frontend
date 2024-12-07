@@ -2,7 +2,7 @@ import { useState } from "react"
 import { registerUser } from '../../services/authService'
 import { USER_TYPES } from '../../constants/userTypes'
 import { validateEmail, validatePhone, validatePassword } from '../../utils/validation'
-import "../../styles/components/auth/SignupForm.css"
+import "../../styles/components/auth/AuthForm.css"
 
 
 export default function SignupForm() {
@@ -61,7 +61,7 @@ export default function SignupForm() {
     }
 
 
-    return <form onSubmit={handleSubmit} className="signup-form">
+    return <form onSubmit={handleSubmit} className="auth-form">
         <h2>Sign Up</h2>
 
 

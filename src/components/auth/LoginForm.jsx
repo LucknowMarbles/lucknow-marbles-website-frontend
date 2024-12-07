@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { loginUser } from '../../services/authService'
 import { validateEmail } from '../../utils/validation'
-import "../../styles/components/auth/SignupForm.css"
+import "../../styles/components/auth/AuthForm.css"
 
 export default function LoginForm() {
     const [formData, setFormData] = useState({
@@ -55,7 +55,7 @@ export default function LoginForm() {
 
 
     return (
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="auth-form">
             <h2>Login</h2>
 
             <div className="form-group">
