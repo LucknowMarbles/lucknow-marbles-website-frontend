@@ -9,8 +9,8 @@ import ProfilePage from './pages/ProfilePage'
 
 export default function App() {
     return (
-        <AuthProvider>
-            <BrowserRouter>
+        <BrowserRouter>
+            <AuthProvider>
                 <Navigation />
                 <Routes>
                     <Route path="/" element={<HomePage />} />
@@ -18,7 +18,7 @@ export default function App() {
                     <Route path="/signup" element={<SignupPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                 </Routes>
-            </BrowserRouter>
-        </AuthProvider>
+            </AuthProvider>
+        </BrowserRouter>
     )
 }
