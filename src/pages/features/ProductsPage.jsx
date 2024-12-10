@@ -109,19 +109,18 @@ export default function AddProductPage() {
             })
 
             notifications.show({
-                title: 'Success',
-                message: 'Product added successfully',
-                color: 'green'
+                title: 'Product Added',
+                message: 'Product has been successfully created',
+                color: 'teal',
             })
             
             form.reset()
             setImageUrl('')
         } catch (error) {
-            console.error('Error adding product:', error)
             notifications.show({
                 title: 'Error',
                 message: error.response?.data?.message || 'An unexpected error occurred',
-                color: 'red'
+                color: 'red',
             })
         } finally {
             setLoading(false)

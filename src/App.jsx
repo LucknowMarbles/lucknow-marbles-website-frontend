@@ -1,4 +1,5 @@
 import '@mantine/core/styles.css'
+import '@mantine/notifications/styles.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Navigation from './components/Navigation'
@@ -8,14 +9,15 @@ import SignupPage from './pages/auth/SignupPage'
 import ProfilePage from './pages/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProductsPage from './pages/features/ProductsPage'
-import { Toaster } from 'react-hot-toast'
 import { MantineProvider, AppShell } from '@mantine/core'
+import { Notifications } from '@mantine/notifications'
 
 export default function App() {
     return (
         <MantineProvider>
             <BrowserRouter>
                 <AuthProvider>
+                    <Notifications position="top-center" />
                     <AppShell
                         header={{ height: 60 }}
                         padding="md"
@@ -35,8 +37,6 @@ export default function App() {
                             </Routes>
                         </AppShell.Main>
                     </AppShell>
-
-                    <Toaster />
                 </AuthProvider>
             </BrowserRouter>
         </MantineProvider>
