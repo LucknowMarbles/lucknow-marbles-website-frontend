@@ -7,6 +7,7 @@ import SignupPage from './pages/auth/SignupPage'
 import ProfilePage from './pages/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProductsPage from './pages/features/ProductsPage'
+import { Toaster } from 'react-hot-toast'
 
 export default function App() {
     return (
@@ -21,6 +22,8 @@ export default function App() {
                     <Route path="/products" element={<ProductsPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>
+
+                <Toaster />
             </AuthProvider>
         </BrowserRouter>
     )
