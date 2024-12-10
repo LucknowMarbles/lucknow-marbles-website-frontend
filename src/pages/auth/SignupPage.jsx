@@ -1,13 +1,12 @@
+import { Container, Paper } from '@mantine/core'
 import SignupForm from '../../components/auth/SignupForm'
-import '../../styles/pages/auth/AuthPage.css'
-
 
 export default function SignupPage() {
-  return (
-    <div className="auth-page">
-        <div className="container">
-            <SignupForm />
-        </div>
-    </div>
-  )
+    return (
+        <Container size="sm" py="xl">
+            <Paper radius="md" p="xl" withBorder>
+                <SignupForm />
+            </Paper>
+        </Container>
+    )
 }

@@ -1,3 +1,4 @@
+import '@mantine/core/styles.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Navigation from './components/Navigation'
@@ -8,23 +9,36 @@ import ProfilePage from './pages/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProductsPage from './pages/features/ProductsPage'
 import { Toaster } from 'react-hot-toast'
+import { MantineProvider, AppShell } from '@mantine/core'
 
 export default function App() {
     return (
-        <BrowserRouter>
-            <AuthProvider>
-                <Navigation />
-                <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/signup" element={<SignupPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/products" element={<ProductsPage />} />
-                    <Route path="*" element={<NotFoundPage />} />
-                </Routes>
+        <MantineProvider>
+            <BrowserRouter>
+                <AuthProvider>
+                    <AppShell
+                        header={{ height: 60 }}
+                        padding="md"
+                    >
+                        <AppShell.Header>
+                            <Navigation />
+                        </AppShell.Header>
 
-                <Toaster />
-            </AuthProvider>
-        </BrowserRouter>
+                        <AppShell.Main>
+                            <Routes>
+                                <Route path="/" element={<HomePage />} />
+                                <Route path="/login" element={<LoginPage />} />
+                                <Route path="/signup" element={<SignupPage />} />
+                                <Route path="/profile" element={<ProfilePage />} />
+                                <Route path="/products" element={<ProductsPage />} />
+                                <Route path="*" element={<NotFoundPage />} />
+                            </Routes>
+                        </AppShell.Main>
+                    </AppShell>
+
+                    <Toaster />
+                </AuthProvider>
+            </BrowserRouter>
+        </MantineProvider>
     )
 }

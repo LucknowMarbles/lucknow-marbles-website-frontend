@@ -1,9 +1,16 @@
 import { useState } from "react"
 import { loginUser } from '../../services/authService'
 import { validateEmail } from '../../utils/validation'
-import "../../styles/components/auth/AuthForm.css"
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import {
+    TextInput,
+    PasswordInput,
+    Button,
+    Title,
+    Stack,
+    Text
+} from '@mantine/core'
 
 export default function LoginForm() {
     const { login } = useAuth()
@@ -17,27 +24,22 @@ export default function LoginForm() {
     const [errors, setErrors] = useState({})
     const [isLoading, setIsLoading] = useState(false)
 
-
-    function handleChange(e) {
-        const { name, value } = e.target
-
+    function handleChange(value, name) {
         setFormData(prev => ({
             ...prev,
             [name]: value
         }))
     }
 
-
     function validateForm() {
         const newErrors = {}
 
         if (!validateEmail(formData.email)) newErrors.email = "Invalid email address"
         if (!formData.password) newErrors.password = "Password is required"
+        
         setErrors(newErrors)
-
         return Object.keys(newErrors).length === 0
     }
-
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -63,40 +65,60 @@ export default function LoginForm() {
         }
     }
 
-
     return (
-        <form onSubmit={handleSubmit} className="auth-form">
-            <h2>Login</h2>
+        <form onSubmit={handleSubmit}>
+            <Stack gap="md">
+                <Title order={2} ta="center">Login</Title>
 
-            <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    value={formData.email} 
-                    onChange={handleChange} 
+                <TextInput
+                    required
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleChange(e.currentTarget.value, 'email')}
+                    error={errors.email}
+                    size="md"
                 />
-                {errors.email && <p className="error-message">{errors.email}</p>}
-            </div>
 
-            <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    value={formData.password} 
-                    onChange={handleChange} 
+                <PasswordInput
+                    required
+                    label="Password"
+                    name="password"
+                    value={formData.password}
+                    onChange={(e) => handleChange(e.currentTarget.value, 'password')}
+                    error={errors.password}
+                    size="md"
                 />
-                {errors.password && <p className="error-message">{errors.password}</p>}
-            </div>
 
-            <button type="submit" disabled={isLoading} className="submit-button">
-                {isLoading ? "Logging in..." : "Login"}
-            </button>
+                <Button
+                    type="submit"
+                    loading={isLoading}
+                    size="md"
+                    fullWidth
+                    color="blue"
+                    styles={(theme) => ({
+                        root: {
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: theme.shadows.md
+                            },
+                            '&:active': {
+                                transform: 'translateY(0)',
+                            }
+                        }
+                    })}
+                >
+                    {isLoading ? "Logging in..." : "Login"}
+                </Button>
 
-            {errors.submit && <p className="error-message">{errors.submit}</p>}
+                {errors.submit && (
+                    <Text c="red" size="sm" ta="center">
+                        {errors.submit}
+                    </Text>
+                )}
+            </Stack>
         </form>
     )
 }

@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../contexts/AuthContext"
-import '../styles/pages/ProfilePage.css'
+import {
+    Container,
+    Paper,
+    Title,
+    Stack,
+    Grid,
+    Text,
+    Skeleton,
+    Alert,
+    Button,
+    Badge
+} from '@mantine/core'
 
 export default function ProfilePage() {
     const { user } = useAuth()
@@ -37,53 +48,90 @@ export default function ProfilePage() {
         fetchProfile()
     }, [])
 
+    if (isLoading) {
+        return (
+            <Container size="sm" py="xl">
+                <Paper radius="md" p="xl" withBorder>
+                    <Stack gap="md">
+                        <Skeleton height={30} width="50%" radius="md" />
+                        <Skeleton height={20} radius="md" />
+                        <Skeleton height={20} radius="md" />
+                        <Skeleton height={20} radius="md" />
+                        <Skeleton height={20} radius="md" />
+                    </Stack>
+                </Paper>
+            </Container>
+        )
+    }
+
+    if (hasError) {
+        return (
+            <Container size="sm" py="xl">
+                <Alert
+                    title="Error"
+                    color="red"
+                    radius="md"
+                >
+                    <Stack gap="md">
+                        <Text>Failed to load profile information</Text>
+                        <Button 
+                            onClick={() => window.location.reload()}
+                            variant="light"
+                            color="red"
+                            size="sm"
+                        >
+                            Retry
+                        </Button>
+                    </Stack>
+                </Alert>
+            </Container>
+        )
+    }
+
     return (
-        <div className="profile-page">
-            <div className="container">
-                <div className="profile-card">
-                    <h1>Profile Information</h1>
+        <Container size="sm" py="xl">
+            <Paper radius="md" p="xl" withBorder>
+                <Stack gap="xl">
+                    <Title order={2} ta="center">Profile Information</Title>
 
-                    {isLoading && (
-                        <div className="loading-state">
-                            <div className="spinner"></div>
-                            <p>Loading profile...</p>
-                        </div>
-                    )}
+                    <Grid gutter="lg">
+                        <Grid.Col span={12}>
+                            <Stack gap={4}>
+                                <Text size="sm" c="dimmed">Username</Text>
+                                <Text fw={500}>{profile.username}</Text>
+                            </Stack>
+                        </Grid.Col>
 
-                    {hasError && (
-                        <div className="error-state">
-                            <p>Error fetching profile information</p>
-                            <button onClick={() => window.location.reload()} className="retry-button">
-                                Retry
-                            </button>
-                        </div>
-                    )}
+                        <Grid.Col span={12}>
+                            <Stack gap={4}>
+                                <Text size="sm" c="dimmed">Email</Text>
+                                <Text fw={500}>{profile.email}</Text>
+                            </Stack>
+                        </Grid.Col>
 
-                    {profile && (
-                        <div className="profile-info">
-                            <div className="info-group">
-                                <label>Username</label>
-                                <p>{profile.username}</p>
-                            </div>
+                        <Grid.Col span={12}>
+                            <Stack gap={4}>
+                                <Text size="sm" c="dimmed">Phone Number</Text>
+                                <Text fw={500}>{profile.phoneNumber}</Text>
+                            </Stack>
+                        </Grid.Col>
 
-                            <div className="info-group">
-                                <label>Email</label>
-                                <p>{profile.email}</p>
-                            </div>
-
-                            <div className="info-group">
-                                <label>Phone Number</label>
-                                <p>{profile.phoneNumber}</p>
-                            </div>
-
-                            <div className="info-group">
-                                <label>User Type</label>
-                                <p className="user-type">{profile.userType}</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+                        <Grid.Col span={12}>
+                            <Stack gap={4}>
+                                <Text size="sm" c="dimmed">User Type</Text>
+                                <Badge 
+                                    color="blue" 
+                                    variant="light"
+                                    size="lg"
+                                    radius="sm"
+                                >
+                                    {profile.userType}
+                                </Badge>
+                            </Stack>
+                        </Grid.Col>
+                    </Grid>
+                </Stack>
+            </Paper>
+        </Container>
     )
 }

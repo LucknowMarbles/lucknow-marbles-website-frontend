@@ -1,30 +1,77 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import '../styles/components/Navigation.css'
+import {
+    Group,
+    Button,
+    Text,
+    Container,
+    Menu,
+    UnstyledButton
+} from '@mantine/core'
 
 export default function Navigation() {
     const { user, logout } = useAuth()
 
     return (
-        <nav className="navbar">
-            <ul className="nav-list">
-                <li><Link to="/" className="nav-link">Home</Link></li>
-                {user ? (
-                    <>
-                        <li><Link to="/profile" className="nav-link">{user.username}</Link></li>
-                        <li>
-                            <button onClick={logout} className="nav-link">
-                                Logout
-                            </button>
-                        </li>
-                    </>
-                ) : (
-                    <>
-                        <li><Link to="/login" className="nav-link">Login</Link></li>
-                        <li><Link to="/signup" className="nav-link">Signup</Link></li>
-                    </>
-                )}
-            </ul>
-        </nav>
+        <Container size="lg" h="100%">
+            <Group h="100%" justify="space-between">
+                <Text 
+                    component={Link} 
+                    to="/"
+                    size="lg"
+                    fw={700}
+                    c="blue.6"
+                    style={{ textDecoration: 'none' }}
+                >
+                    Lucknow Marbles
+                </Text>
+
+                <Group gap="sm">
+                    {user ? (
+                        <>
+                            <Menu position="bottom-end" withArrow>
+                                <Menu.Target>
+                                    <UnstyledButton>
+                                        <Text fw={500} c="blue.7">
+                                            {user.username}
+                                        </Text>
+                                    </UnstyledButton>
+                                </Menu.Target>
+
+                                <Menu.Dropdown>
+                                    <Menu.Item component={Link} to="/profile">
+                                        Profile
+                                    </Menu.Item>
+                                    <Menu.Item c="red" onClick={logout}>
+                                        Logout
+                                    </Menu.Item>
+                                </Menu.Dropdown>
+                            </Menu>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                component={Link}
+                                to="/login"
+                                variant="subtle"
+                                color="blue"
+                                size="sm"
+                            >
+                                Login
+                            </Button>
+                            <Button
+                                component={Link}
+                                to="/signup"
+                                variant="filled"
+                                color="blue"
+                                size="sm"
+                            >
+                                Sign Up
+                            </Button>
+                        </>
+                    )}
+                </Group>
+            </Group>
+        </Container>
     )
 }

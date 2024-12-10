@@ -2,10 +2,17 @@ import { useState } from "react"
 import { registerUser } from '../../services/authService'
 import { USER_TYPES } from '../../constants/userTypes'
 import { validateEmail, validatePhone, validatePassword } from '../../utils/validation'
-import "../../styles/components/auth/AuthForm.css"
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-
+import {
+    TextInput,
+    PasswordInput,
+    Select,
+    Button,
+    Title,
+    Stack,
+    Text
+} from '@mantine/core'
 
 export default function SignupForm() {
     const { login } = useAuth()
@@ -22,16 +29,12 @@ export default function SignupForm() {
     const [errors, setErrors] = useState({})
     const [isLoading, setIsLoading] = useState(false)
 
-
-    function handleChange(e) {
-        const { name, value } = e.target
-
+    function handleChange(value, name) {
         setFormData(prev => ({
             ...prev,
             [name]: value
         }))
     }
-
 
     function validateForm() {
         const newErrors = {}
@@ -44,7 +47,6 @@ export default function SignupForm() {
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
-
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -70,51 +72,92 @@ export default function SignupForm() {
         }
     }
 
+    return (
+        <form onSubmit={handleSubmit}>
+            <Stack gap="md">
+                <Title order={2} ta="center">Sign Up</Title>
 
-    return <form onSubmit={handleSubmit} className="auth-form">
-        <h2>Sign Up</h2>
+                <TextInput
+                    required
+                    label="Username"
+                    name="username"
+                    value={formData.username}
+                    onChange={(e) => handleChange(e.currentTarget.value, 'username')}
+                    error={errors.username}
+                    size="md"
+                />
 
+                <TextInput
+                    required
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleChange(e.currentTarget.value, 'email')}
+                    error={errors.email}
+                    size="md"
+                />
 
-        <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} />
-            {errors.username && <p className="error-message">{errors.username}</p>}
-        </div>
+                <TextInput
+                    required
+                    label="Mobile Number"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleChange(e.currentTarget.value, 'phoneNumber')}
+                    error={errors.phoneNumber}
+                    size="md"
+                />
 
-        <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
-            {errors.email && <p className="error-message">{errors.email}</p>}
-        </div>
+                <PasswordInput
+                    required
+                    label="Password"
+                    name="password"
+                    value={formData.password}
+                    onChange={(e) => handleChange(e.currentTarget.value, 'password')}
+                    error={errors.password}
+                    size="md"
+                />
 
-        <div className="form-group">
-            <label htmlFor="phoneNumber">Mobile Number</label>
-            <input type="tel" id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
-            {errors.phoneNumber && <p className="error-message">{errors.phoneNumber}</p>}
-        </div>
+                <Select
+                    label="User Type"
+                    name="userType"
+                    value={formData.userType}
+                    onChange={(value) => handleChange(value, 'userType')}
+                    data={Object.values(USER_TYPES).map(type => ({
+                        value: type,
+                        label: type.charAt(0).toUpperCase() + type.slice(1)
+                    }))}
+                    size="md"
+                />
 
-        <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} />
-            {errors.password && <p className="error-message">{errors.password}</p>}
-        </div>
+                <Button
+                    type="submit"
+                    loading={isLoading}
+                    size="md"
+                    fullWidth
+                    color="blue"
+                    styles={(theme) => ({
+                        root: {
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: theme.shadows.md
+                            },
+                            '&:active': {
+                                transform: 'translateY(0)',
+                            }
+                        }
+                    })}
+                >
+                    {isLoading ? "Signing up..." : "Sign Up"}
+                </Button>
 
-        <div className="form-group">
-            <label htmlFor="userType">User Type</label>
-            <select id="userType" name="userType" value={formData.userType} onChange={handleChange}>
-                {Object.values(USER_TYPES).map(type => (
-                    <option key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </option>
-                ))}
-            </select>
-        </div>
-
-
-        <button type="submit" disabled={isLoading} className="submit-button">
-            {isLoading ? "Signing up..." : "Sign Up"}
-        </button>
-
-        {errors.submit && <p className="error-message">{errors.submit}</p>}
-    </form>
+                {errors.submit && (
+                    <Text c="red" size="sm" ta="center">
+                        {errors.submit}
+                    </Text>
+                )}
+            </Stack>
+        </form>
+    )
 }

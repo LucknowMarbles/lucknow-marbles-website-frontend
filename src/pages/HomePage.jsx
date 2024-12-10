@@ -1,6 +1,16 @@
-import '../styles/pages/HomePage.css'
-import { useAuth } from '../contexts/AuthContext'
+import {
+    Container,
+    Title,
+    Text,
+    Button,
+    Card,
+    Grid,
+    Group,
+    Stack,
+    Skeleton
+} from '@mantine/core'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import { useState, useEffect } from 'react'
 
 export default function HomePage() {
@@ -44,19 +54,19 @@ export default function HomePage() {
         const cards = []
         
         if (permissions.viewProducts) {
-            cards.push({ title: 'Products', path: '/products' })
+            cards.push({ title: 'Products', path: '/products', description: 'Manage product inventory and categories' })
         }
         if (permissions.viewUsers) {
-            cards.push({ title: 'Users', path: '/users' })
+            cards.push({ title: 'Users', path: '/users', description: 'Manage staff and user accounts' })
         }
         if (permissions.viewOrders) {
-            cards.push({ title: 'Orders', path: '/orders' })
+            cards.push({ title: 'Orders', path: '/orders', description: 'View and manage customer orders' })
         }
         if (permissions.viewEnquiries) {
-            cards.push({ title: 'Enquires', path: '/enquires' })
+            cards.push({ title: 'Enquiries', path: '/enquiries', description: 'Handle customer enquiries' })
         }
         if (permissions.viewSalesReports) {
-            cards.push({ title: 'Sales', path: '/sales' })
+            cards.push({ title: 'Sales', path: '/sales', description: 'View sales reports and analytics' })
         }
 
         return cards
@@ -64,76 +74,164 @@ export default function HomePage() {
 
     if (!user) {
         return (
-            <div className="home-page">
-                <div className="welcome-section">
-                    <h1>Welcome to Lucknow Marbles</h1>
-                    <p className="welcome-message">
+            <Container size="lg" py="xl">
+                <Stack gap="xl" align="center">
+                    <Title
+                        order={1}
+                        ta="center"
+                        variant="gradient"
+                        gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
+                    >
+                        Welcome to Lucknow Marbles
+                    </Title>
+
+                    <Text size="lg" c="dimmed" ta="center" maw={580}>
                         Internal Management System for Lucknow Marbles staff and administrators.
                         Register or login to access inventory, sales, and business operations.
-                    </p>
-                    <div className="cta-buttons">
-                        <Link to="/signup" className="cta-button primary">
+                    </Text>
+
+                    <Group justify="center" mt="md">
+                        <Button
+                            component={Link}
+                            to="/signup"
+                            size="lg"
+                            color="blue.6"
+                            styles={(theme) => ({
+                                root: {
+                                    backgroundColor: theme.colors.blue[6],
+                                    transition: 'all 0.2s ease',
+                                    '&:hover': {
+                                        backgroundColor: theme.colors.blue[7],
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: theme.shadows.md
+                                    },
+                                    '&:active': {
+                                        transform: 'translateY(0)',
+                                        backgroundColor: theme.colors.blue[8]
+                                    }
+                                }
+                            })}
+                        >
                             Staff Registration
-                        </Link>
-                        <Link to="/login" className="cta-button secondary">
+                        </Button>
+                        <Button
+                            component={Link}
+                            to="/login"
+                            size="lg"
+                            variant="outline"
+                            color="blue"
+                            styles={(theme) => ({
+                                root: {
+                                    borderColor: theme.colors.blue[6],
+                                    color: theme.colors.blue[6],
+                                    transition: 'all 0.2s ease',
+                                    '&:hover': {
+                                        backgroundColor: theme.colors.blue[0],
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: theme.shadows.sm,
+                                        borderColor: theme.colors.blue[7]
+                                    },
+                                    '&:active': {
+                                        transform: 'translateY(0)',
+                                        backgroundColor: theme.colors.blue[1],
+                                        borderColor: theme.colors.blue[8]
+                                    }
+                                }
+                            })}
+                        >
                             Staff Login
-                        </Link>
-                    </div>
-                </div>
-            </div>
+                        </Button>
+                    </Group>
+                </Stack>
+            </Container>
         )
     }
 
     if (isLoading) {
         return (
-            <div className="home-page">
-                <div className="container">
-                    <div className="loading-state">
-                        <div className="spinner"></div>
-                        <p>Loading dashboard...</p>
-                    </div>
-                </div>
-            </div>
+            <Container size="lg" py="xl">
+                <Stack gap="xl">
+                    <Skeleton height={50} radius="md" />
+                    <Grid>
+                        {[1, 2, 3].map((i) => (
+                            <Grid.Col key={i} span={{ base: 12, sm: 6, md: 4 }}>
+                                <Skeleton height={200} radius="md" />
+                            </Grid.Col>
+                        ))}
+                    </Grid>
+                </Stack>
+            </Container>
         )
     }
 
     if (error) {
         return (
-            <div className="home-page">
-                <div className="container">
-                    <div className="error-state">
-                        <h2>Error Loading Dashboard</h2>
-                        <p>{error}</p>
-                        <button onClick={() => window.location.reload()} className="retry-button">
-                            Retry
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <Container size="lg" py="xl">
+                <Stack align="center" gap="md">
+                    <Title order={2} c="red">Error Loading Dashboard</Title>
+                    <Text c="dimmed">{error}</Text>
+                    <Button 
+                        onClick={() => window.location.reload()}
+                        color="blue"
+                    >
+                        Retry
+                    </Button>
+                </Stack>
+            </Container>
         )
     }
 
     const authorizedCards = getAuthorizedCards()
 
     return (
-        <div className="home-page">
-            <div className="container">
-                <h1>Welcome to Lucknow Marbles</h1>
+        <Container size="lg" py="xl">
+            <Stack gap="xl">
+                <Title order={1} ta="center">Welcome to Lucknow Marbles</Title>
+                
                 {authorizedCards.length > 0 ? (
-                    <div className="card-grid">
+                    <Grid>
                         {authorizedCards.map((card, index) => (
-                            <Link key={index} to={card.path} className="card">
-                                <div className="card-icon-placeholder"></div>
-                                <h2>{card.title}</h2>
-                            </Link>
+                            <Grid.Col key={index} span={{ base: 12, sm: 6, md: 4 }}>
+                                <Card
+                                    component={Link}
+                                    to={card.path}
+                                    shadow="sm"
+                                    padding="lg"
+                                    radius="md"
+                                    withBorder
+                                    style={{ 
+                                        textDecoration: 'none',
+                                        color: 'inherit',
+                                        height: '100%'
+                                    }}
+                                    styles={(theme) => ({
+                                        root: {
+                                            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                                            '&:hover': {
+                                                transform: 'translateY(-5px)',
+                                                boxShadow: theme.shadows.md
+                                            }
+                                        }
+                                    })}
+                                >
+                                    <Stack gap="sm">
+                                        <Title order={3}>{card.title}</Title>
+                                        <Text size="sm" c="dimmed">
+                                            {card.description}
+                                        </Text>
+                                    </Stack>
+                                </Card>
+                            </Grid.Col>
                         ))}
-                    </div>
+                    </Grid>
                 ) : (
-                    <div className="no-access-message">
-                        <p>You don't have access to any modules. Please contact your administrator.</p>
-                    </div>
+                    <Card withBorder p="xl" radius="md">
+                        <Text ta="center" fw={500} size="lg">
+                            You don't have access to any modules. Please contact your administrator.
+                        </Text>
+                    </Card>
                 )}
-            </div>
-        </div>
+            </Stack>
+        </Container>
     )
 }
