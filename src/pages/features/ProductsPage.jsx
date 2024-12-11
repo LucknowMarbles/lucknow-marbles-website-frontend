@@ -1,4 +1,4 @@
-import { TextInput, NumberInput, Select, FileInput, Button, Paper, Stack, Group } from '@mantine/core'
+import { TextInput, NumberInput, Select, FileInput, Button, Paper, Stack, Group, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useState } from 'react'
@@ -162,11 +162,13 @@ export default function AddProductPage() {
                         required
                     />
 
-                    <TextInput
+                    <Textarea
                         label="Product Description"
                         placeholder="Enter product description"
                         {...form.getInputProps('description')}
                         required
+                        minRows={4}
+                        resize="vertical"
                     />
 
                     <Group grow>
@@ -248,11 +250,13 @@ export default function AddProductPage() {
                         required
                     />
 
-                    <TextInput
+                    <Textarea
                         label="Meta Description"
                         placeholder="Enter meta description"
                         {...form.getInputProps('metaDescription')}
                         required
+                        minRows={4}
+                        resize="vertical"
                     />
 
                     <Button type="submit" loading={loading}>
