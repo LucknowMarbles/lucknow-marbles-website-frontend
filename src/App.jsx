@@ -12,6 +12,7 @@ import ProfilePage from './pages/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProductsPage from './pages/features/ProductsPage'
 import AddProductPage from './pages/features/AddProductPage'
+import ProductDetailsPage from './pages/features/ProductDetailsPage'
 
 export default function App() {
     return (
@@ -35,6 +36,7 @@ export default function App() {
                                 <Route path="/profile" element={<ProfilePage />} />
                                 <Route path="/products" element={<ProductsPage />} />
                                 <Route path="/add-product" element={<AddProductPage />} />
+                                <Route path="/product/:id" element={<ProductDetailsPage />} />
                                 <Route path="*" element={<NotFoundPage />} />
                             </Routes>
                         </AppShell.Main>
