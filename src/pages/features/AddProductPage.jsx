@@ -8,9 +8,11 @@ import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons'
 import { MultiSelect } from '@mantine/core'
+import { useNavigate } from 'react-router-dom'
 
 export default function AddProductPage() {
     const { user } = useAuth()
+    const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [imageUrl, setImageUrl] = useState("")
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -121,9 +123,7 @@ export default function AddProductPage() {
                 color: 'teal',
             })
             
-            form.reset()
-            setImageUrl('')
-
+            navigate('/products')
         }
         catch (error) {
             notifications.show({
