@@ -133,8 +133,9 @@ export default function ProductsPage() {
                         data={tags}
                         value={selectedTags}
                         onChange={setSelectedTags}
+                        searchable
                         clearable
-                        style={{ width: 200 }}
+                        style={{ width: 300 }}
                     />
                 </Group>
             </Paper>
