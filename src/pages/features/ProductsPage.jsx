@@ -1,4 +1,4 @@
-import { Container, Grid, Card, Image, Text, Title, Button, Group, Paper, Stack, Box, Select, MultiSelect, Badge } from '@mantine/core'
+import { Container, Grid, Card, Image, Text, Title, Button, Group, Paper, Stack, Box, Select, MultiSelect, Badge, TextInput } from '@mantine/core'
 import { notifications } from "@mantine/notifications"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -13,6 +13,7 @@ export default function ProductsPage() {
     const [selectedCategory, setSelectedCategory] = useState(null)
     const [selectedTags, setSelectedTags] = useState([])
     const [sortOrder, setSortOrder] = useState('newest')
+    const [searchQuery, setSearchQuery] = useState('')
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -49,6 +50,12 @@ export default function ProductsPage() {
     useEffect(() => {
         let filtered = [...products]
         
+        if (searchQuery.trim()) {
+            filtered = filtered.filter(p => 
+                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+        }
+        
         if (selectedCategory) {
             filtered = filtered.filter(p => p.category === selectedCategory)
         }
@@ -69,7 +76,7 @@ export default function ProductsPage() {
         
         setFilteredProducts(filtered)
     
-    }, [products, selectedCategory, selectedTags, sortOrder])
+    }, [products, selectedCategory, selectedTags, sortOrder, searchQuery])
 
 
     return (
@@ -127,6 +134,13 @@ export default function ProductsPage() {
             {/* Filters */}
             <Paper shadow="xs" p="md" mb="xl" radius="md">
                 <Group align="flex-end">
+                    <TextInput
+                        label="Search Products"
+                        placeholder="Search by name..."
+                        value={searchQuery}
+                        onChange={(event) => setSearchQuery(event.currentTarget.value)}
+                        style={{ width: 300 }}
+                    />
                     <Select
                         label="Filter by Category"
                         placeholder="Select category"
