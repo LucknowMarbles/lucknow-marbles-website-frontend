@@ -139,7 +139,6 @@ export default function AddProductPage() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
                 <Button
                     variant="light"
-                    compact
                     onClick={() => setIsModalOpen(true)}
                 >
                     <Group spacing="xs">

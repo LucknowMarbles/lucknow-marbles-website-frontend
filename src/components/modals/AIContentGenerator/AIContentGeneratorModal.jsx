@@ -14,8 +14,11 @@ import {
 } from '@mantine/core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagicWandSparkles, faCopy } from '@fortawesome/free-solid-svg-icons'
+import axios from "axios"
+import { useAuth } from "../../../contexts/AuthContext"
 
 export default function AIContentGeneratorModal({ opened, onClose }) {
+    const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [contentType, setContentType] = useState('product-description')
     const [prompt, setPrompt] = useState('')
@@ -25,8 +28,21 @@ export default function AIContentGeneratorModal({ opened, onClose }) {
         setLoading(true)
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000))
-            setGeneratedContent('Temporary content here for now.')
+            const response = await axios.post("http://localhost:5001/api/ai/generate-content", {
+                contentType,
+                prompt
+            }, {
+                headers: {
+                    Authorization: `Bearer ${user.token}`
+                }
+            })
+
+            if (response.data?.content) {
+                setGeneratedContent(response.data.content)
+            }
+            else {
+                throw new Error('No content received from API')
+            }
         }
         catch (error) {
             notifications.show({
