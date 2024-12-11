@@ -1,4 +1,4 @@
-import { TextInput, NumberInput, Select, FileInput, Button, Paper, Stack, Group, Textarea } from '@mantine/core'
+import { TextInput, NumberInput, Select, FileInput, Button, Paper, Stack, Group, Textarea, LoadingOverlay } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useState } from 'react'
@@ -197,7 +197,9 @@ export default function AddProductPage() {
                         onChange={handleImageUpload}
                         required
                     />
-
+                    
+                    <LoadingOverlay visible={loading} />
+                    
                     {imageUrl && (
                         <img 
                             src={imageUrl} 
