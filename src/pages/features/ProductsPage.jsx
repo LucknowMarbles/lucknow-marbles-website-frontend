@@ -12,6 +12,7 @@ export default function ProductsPage() {
     const [filteredProducts, setFilteredProducts] = useState([])
     const [selectedCategory, setSelectedCategory] = useState(null)
     const [selectedTags, setSelectedTags] = useState([])
+    const [sortOrder, setSortOrder] = useState('newest')
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -58,9 +59,17 @@ export default function ProductsPage() {
             )
         }
         
+        filtered.sort((a, b) => {
+            if (sortOrder === 'newest') {
+                return new Date(b.createdAt) - new Date(a.createdAt)
+            } else {
+                return new Date(a.createdAt) - new Date(b.createdAt)
+            }
+        })
+        
         setFilteredProducts(filtered)
     
-    }, [products, selectedCategory, selectedTags])
+    }, [products, selectedCategory, selectedTags, sortOrder])
 
 
     return (
@@ -117,7 +126,7 @@ export default function ProductsPage() {
 
             {/* Filters */}
             <Paper shadow="xs" p="md" mb="xl" radius="md">
-                <Group>
+                <Group align="flex-end">
                     <Select
                         label="Filter by Category"
                         placeholder="Select category"
@@ -136,6 +145,16 @@ export default function ProductsPage() {
                         searchable
                         clearable
                         style={{ width: 300 }}
+                    />
+                    <Select
+                        label="Sort by Date"
+                        value={sortOrder}
+                        onChange={setSortOrder}
+                        data={[
+                            { value: 'newest', label: 'Newest First' },
+                            { value: 'oldest', label: 'Oldest First' },
+                        ]}
+                        style={{ width: 200 }}
                     />
                 </Group>
             </Paper>
