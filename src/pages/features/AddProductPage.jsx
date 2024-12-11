@@ -7,6 +7,7 @@ import AIContentGeneratorModal from '../../components/modals/AIContentGenerator/
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons'
+import { MultiSelect } from '@mantine/core'
 
 export default function AddProductPage() {
     const { user } = useAuth()
@@ -21,7 +22,7 @@ export default function AddProductPage() {
             price: 0,
             quantity: 0,
             category: '',
-            tags: '',
+            tags: [],
             isEcommerce: '',
             metaTitle: '',
             metaDescription: ''
@@ -49,7 +50,7 @@ export default function AddProductPage() {
                 value > 999999 ? 'Quantity cannot exceed 999999' : null
             ),
             category: (value) => (!value ? 'Category is required' : null),
-            tags: (value) => (!value ? 'Tags are required' : null),
+            tags: (value) => (value.length === 0 ? 'At least one tag is required' : null),
             isEcommerce: (value) => (!value ? 'E-commerce option is required' : null),
             metaTitle: (value) => (
                 !value ? 'Meta title is required' :
@@ -87,14 +88,16 @@ export default function AddProductPage() {
                     color: 'green'
                 })
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error uploading image:', error)
             notifications.show({
                 title: 'Error',
                 message: 'Failed to upload image',
                 color: 'red'
             })
-        } finally {
+        }
+        finally {
             setLoading(false)
         }
     }
@@ -221,7 +224,7 @@ export default function AddProductPage() {
                             required
                         />
 
-                        <Select
+                        <MultiSelect
                             label="Tags"
                             placeholder="Select tags"
                             data={[
@@ -231,6 +234,8 @@ export default function AddProductPage() {
                             ]}
                             {...form.getInputProps('tags')}
                             required
+                            searchable
+                            clearable
                         />
                     </Group>
 
