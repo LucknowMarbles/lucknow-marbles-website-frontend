@@ -125,7 +125,7 @@ export default function ProductsPage() {
                     >
                         <Group spacing="xs">
                             <FontAwesomeIcon icon={faPlus} />
-                            <span>Add Product</span>
+                            <Text visibleFrom="sm">Add Product</Text>
                         </Group>
                     </Button>
                 </div>
