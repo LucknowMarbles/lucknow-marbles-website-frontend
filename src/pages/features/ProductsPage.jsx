@@ -3,12 +3,16 @@ import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import AIContentGeneratorModal from '../../components/modals/AIContentGenerator/AIContentGeneratorModal'
 import axios from 'axios'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons'
 
 export default function AddProductPage() {
     const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [imageUrl, setImageUrl] = useState("")
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     const form = useForm({
         initialValues: {
@@ -116,19 +120,40 @@ export default function AddProductPage() {
             
             form.reset()
             setImageUrl('')
-        } catch (error) {
+
+        }
+        catch (error) {
             notifications.show({
                 title: 'Error',
                 message: error.response?.data?.message || 'An unexpected error occurred',
                 color: 'red',
             })
-        } finally {
+        }
+        finally {
             setLoading(false)
         }
     }
 
     return (
         <Paper p="md" radius="md">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                <Button
+                    variant="light"
+                    compact
+                    onClick={() => setIsModalOpen(true)}
+                >
+                    <Group spacing="xs">
+                        <FontAwesomeIcon icon={faMagicWandSparkles} />
+                        <span>AI Assistant</span>
+                    </Group>
+                </Button>
+            </div>
+
+            <AIContentGeneratorModal
+                opened={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+            />
+            
             <form onSubmit={form.onSubmit(handleSubmit)}>
                 <Stack spacing="md">
                     <TextInput
