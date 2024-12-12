@@ -1,4 +1,4 @@
-import { Container, Paper, Image, Text, Title, Badge, Group, Stack, Button, LoadingOverlay } from '@mantine/core'
+import { Container, Paper, Image, Text, Title, Badge, Group, Stack, Button, LoadingOverlay, Grid } from '@mantine/core'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { notifications } from '@mantine/notifications'
@@ -62,8 +62,8 @@ export default function ProductDetailsPage() {
                 </Group>
 
                 {/* Primary Row: Image and Essential Details */}
-                <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: '1fr 1fr', marginBottom: '2rem' }}>
-                    <div>
+                <Grid gutter="xl" mb="xl">
+                    <Grid.Col span={{ base: 12, md: 6 }}>
                         <Image
                             src={product.imageUrl}
                             alt={product.name}
@@ -73,50 +73,52 @@ export default function ProductDetailsPage() {
                             fit="cover"
                             fallbackSrc="https://placehold.co/600x400"
                         />
-                    </div>
+                    </Grid.Col>
 
-                    <Stack spacing="md">
-                        <Title order={1}>{product.name}</Title>
-                        
-                        <Text size="xl" fw={700} c="blue">
-                            ₹{product.price}
-                        </Text>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                        <Stack spacing="md">
+                            <Title order={1}>{product.name}</Title>
+                            
+                            <Text size="xl" fw={700} c="blue">
+                                ₹{product.price}
+                            </Text>
 
-                        <Group>
-                            {product.category && (
-                                <Badge color="blue" size="lg" variant="light">
-                                    {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
-                                </Badge>
-                            )}
-                            {product.isEcommerce === 'yes' && (
-                                <Badge color="green" size="lg" variant="light">
-                                    E-Commerce
-                                </Badge>
-                            )}
-                        </Group>
-
-                        {product.tags?.length > 0 && (
                             <Group>
-                                {product.tags.map(tag => (
-                                    <Badge 
-                                        key={tag}
-                                        variant="outline"
-                                        size="md"
-                                    >
-                                        {tag}
+                                {product.category && (
+                                    <Badge color="blue" size="lg" variant="light">
+                                        {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
                                     </Badge>
-                                ))}
+                                )}
+                                {product.isEcommerce === 'yes' && (
+                                    <Badge color="green" size="lg" variant="light">
+                                        E-Commerce
+                                    </Badge>
+                                )}
                             </Group>
-                        )}
 
-                        <Text size="sm" c="dimmed">
-                            Stock: {product.quantity} units
-                        </Text>
+                            {product.tags?.length > 0 && (
+                                <Group>
+                                    {product.tags.map(tag => (
+                                        <Badge 
+                                            key={tag}
+                                            variant="outline"
+                                            size="md"
+                                        >
+                                            {tag}
+                                        </Badge>
+                                    ))}
+                                </Group>
+                            )}
 
-                        <Title order={3}>Description</Title>
-                        <Text>{product.description}</Text>
-                    </Stack>
-                </div>
+                            <Text size="sm" c="dimmed">
+                                Stock: {product.quantity} units
+                            </Text>
+
+                            <Title order={3}>Description</Title>
+                            <Text>{product.description}</Text>
+                        </Stack>
+                    </Grid.Col>
+                </Grid>
 
                 {/* Secondary Row: SEO Information */}
                 <Paper withBorder p="xl" radius="md" mb="lg">
