@@ -12,6 +12,8 @@ import {
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useState, useEffect } from 'react'
+import { API_BASE_URL } from '../config/config.js'
+import axios from 'axios'
 
 export default function HomePage() {
     const { user } = useAuth()
@@ -24,30 +26,29 @@ export default function HomePage() {
             if (!user) return
             
             try {
-                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-                const response = await fetch(`${API_BASE_URL}/users/permissions`, {
+                const { data } = await axios.get(`${API_BASE_URL}/api/users/permissions`, {
                     headers: {
-                        "Authorization": `Bearer ${user.token}`
+                        Authorization: `Bearer ${user.token}`
                     }
                 })
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch permissions")
-                }
-
-                const data = await response.json()
+                
                 setPermissions(data)
-            } catch (err) {
-                setError(err.message)
+            }
+            catch (err) {
+                const message = err.response?.data?.message || "Failed to fetch permissions"
+                setError(message)
                 console.error("Error fetching permissions:", err)
-            } finally {
+            }
+            finally {
                 setIsLoading(false)
             }
         }
 
         fetchPermissions()
+    
     }, [user])
 
+    
     const getAuthorizedCards = () => {
         if (!permissions) return []
 

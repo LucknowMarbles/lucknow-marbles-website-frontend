@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEye } from '@fortawesome/free-solid-svg-icons'
+import { API_BASE_URL } from '../../config/config.js'
 import axios from "axios"
 
 export default function ProductsPage() {
@@ -18,7 +19,7 @@ export default function ProductsPage() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:5001/api/products')
+                const response = await axios.get(`${API_BASE_URL}/api/products`)
                 setProducts(response.data)
                 setFilteredProducts(response.data)
             }

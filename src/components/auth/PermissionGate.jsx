@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { Container, Stack, Title, Text, Button, Card } from '@mantine/core'
 import { useNavigate } from 'react-router-dom'
+import { API_BASE_URL } from '../../config/config.js'
+import axios from 'axios'
 
 export default function PermissionGate({ requiredPermission, children }) {
     const navigate = useNavigate()
@@ -18,22 +20,17 @@ export default function PermissionGate({ requiredPermission, children }) {
             }
             
             try {
-                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-                const response = await fetch(`${API_BASE_URL}/users/permissions`, {
+                const { data } = await axios.get(`${API_BASE_URL}/api/users/permissions`, {
                     headers: {
-                        "Authorization": `Bearer ${user.token}`
+                        Authorization: `Bearer ${user.token}`
                     }
                 })
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch permissions")
-                }
-
-                const data = await response.json()
+                
                 setPermissions(data)
             }
             catch (err) {
-                setError(err.message)
+                const errorMessage = err.response?.data?.message || err.message
+                setError(errorMessage)
                 console.error("Error fetching permissions:", err)
             }
             finally {

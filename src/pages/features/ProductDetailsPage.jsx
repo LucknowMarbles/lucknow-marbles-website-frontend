@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { notifications } from '@mantine/notifications'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { API_BASE_URL } from '../../config/config.js'
 import axios from 'axios'
 
 export default function ProductDetailsPage() {
@@ -15,7 +16,7 @@ export default function ProductDetailsPage() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.get(`http://localhost:5001/api/products/product/${id}`)
+                const response = await axios.get(`${API_BASE_URL}/api/products/product/${id}`)
                 setProduct(response.data)
             }
             catch (error) {

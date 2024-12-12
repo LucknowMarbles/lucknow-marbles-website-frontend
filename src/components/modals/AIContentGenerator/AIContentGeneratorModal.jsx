@@ -16,6 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagicWandSparkles, faCopy } from '@fortawesome/free-solid-svg-icons'
 import axios from "axios"
 import { useAuth } from "../../../contexts/AuthContext"
+import { API_BASE_URL } from '../../../config/config.js'
 
 export default function AIContentGeneratorModal({ opened, onClose }) {
     const { user } = useAuth()
@@ -28,7 +29,7 @@ export default function AIContentGeneratorModal({ opened, onClose }) {
         setLoading(true)
 
         try {
-            const response = await axios.post("http://localhost:5001/api/ai/generate-content", {
+            const response = await axios.post(`${API_BASE_URL}/api/ai/generate-content`, {
                 contentType,
                 prompt
             }, {

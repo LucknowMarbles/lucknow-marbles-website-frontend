@@ -1,48 +1,22 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+import axios from 'axios'
+import { API_BASE_URL } from '../config/config.js'
 
 export const registerUser = async (userData) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/register`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(userData),
-        })
-
-        if (!response.ok) {
-            const errorData = await response.json()
-            throw new Error(errorData.error || "Failed to register user")
-        }
-
-        const data = await response.json()
+        const { data } = await axios.post(`${API_BASE_URL}/api/users/register`, userData)
         return data
     }
     catch (error) {
-        throw error;
+        throw error.response?.data?.error || error.message || 'Failed to register user'
     }
 }
 
-
 export const loginUser = async (credentials) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(credentials),
-        })
-
-        if (!response.ok) {
-            const errorData = await response.json()
-            throw new Error(errorData.error || "Failed to login")
-        }
-
-        const data = await response.json()
+        const { data } = await axios.post(`${API_BASE_URL}/api/users/login`, credentials)
         return data
     }
     catch (error) {
-        throw error
+        throw error.response?.data?.error || error.message || 'Failed to login'
     }
 }

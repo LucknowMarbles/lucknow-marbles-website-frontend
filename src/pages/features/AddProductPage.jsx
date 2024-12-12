@@ -10,6 +10,7 @@ import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons'
 import { MultiSelect } from '@mantine/core'
 import { useNavigate } from 'react-router-dom'
 import PermissionGate from '../../components/auth/PermissionGate'
+import { API_BASE_URL } from '../../config/config.js'
 
 export default function AddProductPage() {
     const { user } = useAuth()
@@ -76,7 +77,7 @@ export default function AddProductPage() {
         formData.append('image', file)
 
         try {
-            const response = await axios.post('http://localhost:5001/api/upload', formData, {
+            const response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${user.token}`
@@ -114,7 +115,7 @@ export default function AddProductPage() {
                 imageUrl
             }
 
-            await axios.post('http://localhost:5001/api/products', productData, {
+            await axios.post(`${API_BASE_URL}/api/products`, productData, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
 

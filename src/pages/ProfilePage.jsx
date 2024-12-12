@@ -12,6 +12,8 @@ import {
     Button,
     Badge
 } from '@mantine/core'
+import { API_BASE_URL } from '../config/config.js'
+import axios from 'axios'
 
 export default function ProfilePage() {
     const { user } = useAuth()
@@ -22,23 +24,17 @@ export default function ProfilePage() {
     useEffect(() => {
         async function fetchProfile() {
             try {
-                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-                const response = await fetch(`${API_BASE_URL}/users/profile`, {
+                const { data } = await axios.get(`${API_BASE_URL}/api/users/profile`, {
                     headers: {
-                        "Authorization": `Bearer ${user.token}`
+                        Authorization: `Bearer ${user.token}`
                     }
                 })
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch profile")
-                }
-
-                const data = await response.json()
+                
                 setProfile(data)
             }
             catch (error) {
                 setHasError(true)
-                console.error("Error fetching profile:", error)
+                console.error("Error fetching profile:", error.response?.data || error.message)
             }
             finally {
                 setIsLoading(false)
@@ -46,7 +42,8 @@ export default function ProfilePage() {
         }
 
         fetchProfile()
-    }, [])
+    
+    }, [user.token])
 
     if (isLoading) {
         return (
