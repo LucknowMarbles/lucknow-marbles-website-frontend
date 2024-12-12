@@ -3,15 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { notifications } from '@mantine/notifications'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { API_BASE_URL } from '../../config/config.js'
 import axios from 'axios'
+import { modals } from '@mantine/modals'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function ProductDetailsPage() {
     const navigate = useNavigate()
     const { id } = useParams()
     const [product, setProduct] = useState(null)
     const [loading, setLoading] = useState(true)
+    const { user } = useAuth()
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -37,6 +40,41 @@ export default function ProductDetailsPage() {
     
     }, [id, navigate])
 
+    const handleDelete = () => {
+        modals.openConfirmModal({
+            title: 'Delete Product',
+            centered: true,
+            children: (
+                <Text size="sm">
+                    Are you sure you want to delete this product? This action cannot be undone.
+                </Text>
+            ),
+            labels: { confirm: 'Delete', cancel: 'Cancel' },
+            confirmProps: { color: 'red' },
+            onConfirm: async () => {
+                try {
+                    await axios.delete(`${API_BASE_URL}/api/products/${id}`, {
+                        headers: { Authorization: `Bearer ${user.token}` }
+                    })
+                    
+                    notifications.show({
+                        title: 'Success',
+                        message: 'Product deleted successfully',
+                        color: 'green'
+                    })
+                    
+                    navigate('/products')
+                } catch (error) {
+                    notifications.show({
+                        title: 'Error',
+                        message: error.response?.data?.message || 'Failed to delete product',
+                        color: 'red'
+                    })
+                }
+            }
+        })
+    }
+
     if (loading) {
         return (
             <Container size="md" py="xl">
@@ -59,6 +97,24 @@ export default function ProductDetailsPage() {
                     >
                         Back to Products
                     </Button>
+                    <Group>
+                        <Button
+                            variant="filled"
+                            color="blue"
+                            leftSection={<FontAwesomeIcon icon={faEdit} />}
+                            onClick={() => navigate(`/product/${id}/edit`)}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            variant="filled"
+                            color="red"
+                            leftSection={<FontAwesomeIcon icon={faTrash} />}
+                            onClick={handleDelete}
+                        >
+                            Delete
+                        </Button>
+                    </Group>
                 </Group>
 
                 {/* Primary Row: Image and Essential Details */}
