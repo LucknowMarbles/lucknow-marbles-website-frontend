@@ -193,9 +193,20 @@ export default function ProductDetailsPage() {
 
                 {/* Third Row: Date Information */}
                 <Paper withBorder p="md" radius="md">
-                    <Group justify="flex-end">
+                    <Group justify="flex-end" gap="xl">
                         <Text size="sm" c="dimmed">
-                            Added on: {new Date(product.createdAt).toLocaleDateString()}
+                            Added on: {new Date(product.createdAt).toLocaleString('en-IN', {
+                                timeZone: 'Asia/Kolkata',
+                                dateStyle: 'medium',
+                                timeStyle: 'medium'
+                            })}
+                        </Text>
+                        <Text size="sm" c="dimmed">
+                            Last updated: {new Date(product.updatedAt).toLocaleString('en-IN', {
+                                timeZone: 'Asia/Kolkata',
+                                dateStyle: 'medium',
+                                timeStyle: 'medium'
+                            })}
                         </Text>
                     </Group>
                 </Paper>
