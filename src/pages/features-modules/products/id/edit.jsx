@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { MultiSelect } from '@mantine/core'
 import { API_BASE_URL } from '../../../../config/config.js'
+import PermissionGate from '../../../../components/auth/PermissionGate.jsx'
 
 export default function EditProductPage() {
     const { user } = useAuth()
@@ -167,130 +168,132 @@ export default function EditProductPage() {
     }
 
     return (
-        <Paper p="md" radius="md">
-            <Button
-                variant="subtle"
-                leftSection={<FontAwesomeIcon icon={faArrowLeft} />}
-                onClick={() => navigate(`/products/${id}`)}
-                mb="xl"
-            >
-                Back to Product
-            </Button>
+        <PermissionGate requiredPermission="editProducts">
+            <Paper p="md" radius="md">
+                <Button
+                    variant="subtle"
+                    leftSection={<FontAwesomeIcon icon={faArrowLeft} />}
+                    onClick={() => navigate(`/products/${id}`)}
+                    mb="xl"
+                >
+                    Back to Product
+                </Button>
 
-            <form onSubmit={form.onSubmit(handleSubmit)}>
-                <Stack spacing="md">
-                    <TextInput
-                        label="Product Name"
-                        placeholder="Enter product name"
-                        {...form.getInputProps('name')}
-                        required
-                    />
-
-                    <Textarea
-                        label="Product Description"
-                        placeholder="Enter product description"
-                        {...form.getInputProps('description')}
-                        required
-                        minRows={4}
-                        resize="vertical"
-                    />
-
-                    <Group grow>
-                        <NumberInput
-                            label="Price"
-                            placeholder="Enter price"
-                            min={0}
-                            precision={2}
-                            {...form.getInputProps('price')}
+                <form onSubmit={form.onSubmit(handleSubmit)}>
+                    <Stack spacing="md">
+                        <TextInput
+                            label="Product Name"
+                            placeholder="Enter product name"
+                            {...form.getInputProps('name')}
                             required
                         />
 
-                        <NumberInput
-                            label="Quantity"
-                            placeholder="Enter quantity"
-                            min={0}
-                            {...form.getInputProps('quantity')}
+                        <Textarea
+                            label="Product Description"
+                            placeholder="Enter product description"
+                            {...form.getInputProps('description')}
                             required
+                            minRows={4}
+                            resize="vertical"
                         />
-                    </Group>
 
-                    <FileInput
-                        label="Product Image"
-                        placeholder="Upload image"
-                        accept="image/png,image/jpeg"
-                        onChange={handleImageUpload}
-                    />
-                    
-                    <LoadingOverlay visible={loading} />
-                    
-                    {imageUrl && (
-                        <img 
-                            src={imageUrl} 
-                            alt="Product preview" 
-                            style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'contain' }} 
+                        <Group grow>
+                            <NumberInput
+                                label="Price"
+                                placeholder="Enter price"
+                                min={0}
+                                precision={2}
+                                {...form.getInputProps('price')}
+                                required
+                            />
+
+                            <NumberInput
+                                label="Quantity"
+                                placeholder="Enter quantity"
+                                min={0}
+                                {...form.getInputProps('quantity')}
+                                required
+                            />
+                        </Group>
+
+                        <FileInput
+                            label="Product Image"
+                            placeholder="Upload image"
+                            accept="image/png,image/jpeg"
+                            onChange={handleImageUpload}
                         />
-                    )}
+                        
+                        <LoadingOverlay visible={loading} />
+                        
+                        {imageUrl && (
+                            <img 
+                                src={imageUrl} 
+                                alt="Product preview" 
+                                style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'contain' }} 
+                            />
+                        )}
 
-                    <Group grow>
+                        <Group grow>
+                            <Select
+                                label="Category"
+                                placeholder="Select category"
+                                data={[
+                                    { value: 'furniture', label: 'Furniture' },
+                                    { value: 'electronics', label: 'Electronics' },
+                                    { value: 'clothing', label: 'Clothing' }
+                                ]}
+                                {...form.getInputProps('category')}
+                                required
+                            />
+
+                            <MultiSelect
+                                label="Tags"
+                                placeholder="Select tags"
+                                data={[
+                                    { value: 'new', label: 'New' },
+                                    { value: 'featured', label: 'Featured' },
+                                    { value: 'sale', label: 'Sale' }
+                                ]}
+                                {...form.getInputProps('tags')}
+                                required
+                                searchable
+                                clearable
+                            />
+                        </Group>
+
                         <Select
-                            label="Category"
-                            placeholder="Select category"
+                            label="E-commerce"
+                            placeholder="Select e-commerce option"
                             data={[
-                                { value: 'furniture', label: 'Furniture' },
-                                { value: 'electronics', label: 'Electronics' },
-                                { value: 'clothing', label: 'Clothing' }
+                                { value: 'yes', label: 'Yes' },
+                                { value: 'no', label: 'No' }
                             ]}
-                            {...form.getInputProps('category')}
+                            {...form.getInputProps('isEcommerce')}
                             required
                         />
 
-                        <MultiSelect
-                            label="Tags"
-                            placeholder="Select tags"
-                            data={[
-                                { value: 'new', label: 'New' },
-                                { value: 'featured', label: 'Featured' },
-                                { value: 'sale', label: 'Sale' }
-                            ]}
-                            {...form.getInputProps('tags')}
+                        <TextInput
+                            label="Meta Title"
+                            placeholder="Enter meta title"
+                            {...form.getInputProps('metaTitle')}
                             required
-                            searchable
-                            clearable
                         />
-                    </Group>
 
-                    <Select
-                        label="E-commerce"
-                        placeholder="Select e-commerce option"
-                        data={[
-                            { value: 'yes', label: 'Yes' },
-                            { value: 'no', label: 'No' }
-                        ]}
-                        {...form.getInputProps('isEcommerce')}
-                        required
-                    />
+                        <Textarea
+                            label="Meta Description"
+                            placeholder="Enter meta description"
+                            {...form.getInputProps('metaDescription')}
+                            required
+                            minRows={4}
+                            resize="vertical"
+                        />
 
-                    <TextInput
-                        label="Meta Title"
-                        placeholder="Enter meta title"
-                        {...form.getInputProps('metaTitle')}
-                        required
-                    />
-
-                    <Textarea
-                        label="Meta Description"
-                        placeholder="Enter meta description"
-                        {...form.getInputProps('metaDescription')}
-                        required
-                        minRows={4}
-                        resize="vertical"
-                    />
-
-                    <Button type="submit" loading={loading}>
-                        Update Product
-                    </Button>
-                </Stack>
-            </form>
-        </Paper>
+                        <Button type="submit" loading={loading}>
+                            Update Product
+                        </Button>
+                    </Stack>
+                </form>
+            </Paper>
+        </PermissionGate>
     )
 } 
