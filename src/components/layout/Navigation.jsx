@@ -38,7 +38,7 @@ export default function Navigation() {
                                     </UnstyledButton>
                                 </Menu.Target>
 
-                                <Menu.Dropdown>
+                                <Menu.Dropdown w={150}>
                                     <Menu.Item component={Link} to="/profile">
                                         Profile
                                     </Menu.Item>
