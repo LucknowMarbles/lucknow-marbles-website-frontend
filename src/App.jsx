@@ -5,16 +5,16 @@ import { AuthProvider } from './contexts/AuthContext'
 import { MantineProvider, AppShell } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
 import { ModalsProvider } from '@mantine/modals'
-import Navigation from './components/Navigation'
-import HomePage from './pages/HomePage'
+import Navigation from './components/layout/Navigation'
+import Dashboard from './pages/dashboard'
 import LoginPage from './pages/auth/LoginPage'
 import SignupPage from './pages/auth/SignupPage'
-import ProfilePage from './pages/ProfilePage'
+import ProfilePage from './pages/profile'
 import NotFoundPage from './pages/NotFoundPage'
-import ProductsPage from './pages/features/ProductsPage'
-import AddProductPage from './pages/features/AddProductPage'
-import ProductDetailsPage from './pages/features/ProductDetailsPage'
-import EditProductPage from './pages/features/EditProductPage'
+import Products from './pages/features-modules/products'
+import AddProductPage from './pages/features-modules/products/add'
+import ProductDetailsPage from './pages/features-modules/products/id'
+import EditProductPage from './pages/features-modules/products/id/edit'
 
 export default function App() {
     return (
@@ -33,14 +33,18 @@ export default function App() {
 
                             <AppShell.Main>
                                 <Routes>
-                                    <Route path="/" element={<HomePage />} />
+                                    <Route path="/" element={<Dashboard />} />
                                     <Route path="/login" element={<LoginPage />} />
                                     <Route path="/signup" element={<SignupPage />} />
                                     <Route path="/profile" element={<ProfilePage />} />
-                                    <Route path="/products" element={<ProductsPage />} />
-                                    <Route path="/add-product" element={<AddProductPage />} />
-                                    <Route path="/product/:id" element={<ProductDetailsPage />} />
-                                    <Route path="/product/:id/edit" element={<EditProductPage />} />
+                                    <Route path="/products">
+                                        <Route index element={<Products />} />
+                                        <Route path="add" element={<AddProductPage />} />
+                                        <Route path=":id">
+                                            <Route index element={<ProductDetailsPage />} />
+                                            <Route path="edit" element={<EditProductPage />} />
+                                        </Route>
+                                    </Route>
                                     <Route path="*" element={<NotFoundPage />} />
                                 </Routes>
                             </AppShell.Main>

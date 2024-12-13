@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
 import { notifications } from '@mantine/notifications'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { API_BASE_URL } from '../../config/config.js'
+import { API_BASE_URL } from '../../../../config/config.js'
 import axios from 'axios'
 import { modals } from '@mantine/modals'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '../../../../contexts/AuthContext.jsx'
 
 export default function ProductDetailsPage() {
     const navigate = useNavigate()
@@ -102,7 +102,7 @@ export default function ProductDetailsPage() {
                             variant="filled"
                             color="blue"
                             leftSection={<FontAwesomeIcon icon={faEdit} />}
-                            onClick={() => navigate(`/product/${id}/edit`)}
+                            onClick={() => navigate(`/products/${id}/edit`)}
                         >
                             Edit
                         </Button>

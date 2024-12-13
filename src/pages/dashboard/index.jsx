@@ -10,12 +10,12 @@ import {
     Skeleton
 } from '@mantine/core'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useState, useEffect } from 'react'
-import { API_BASE_URL } from '../config/config.js'
+import { API_BASE_URL } from '../../config/config.js'
 import axios from 'axios'
 
-export default function HomePage() {
+export default function Dashboard() {
     const { user } = useAuth()
     const [permissions, setPermissions] = useState(null)
     const [isLoading, setIsLoading] = useState(true)

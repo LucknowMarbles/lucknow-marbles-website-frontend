@@ -2,15 +2,15 @@ import { TextInput, NumberInput, Select, FileInput, Button, Paper, Stack, Group,
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useState } from 'react'
-import { useAuth } from '../../contexts/AuthContext'
-import AIContentGeneratorModal from '../../components/modals/AIContentGenerator/AIContentGeneratorModal'
+import { useAuth } from '../../../contexts/AuthContext.jsx'
+import AIContentGeneratorModal from '../../../components/modals/AIContentGenerator/AIContentGeneratorModal.jsx'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons'
 import { MultiSelect } from '@mantine/core'
 import { useNavigate } from 'react-router-dom'
-import PermissionGate from '../../components/auth/PermissionGate'
-import { API_BASE_URL } from '../../config/config.js'
+import PermissionGate from '../../../components/auth/PermissionGate.jsx'
+import { API_BASE_URL } from '../../../config/config.js'
 
 export default function AddProductPage() {
     const { user } = useAuth()

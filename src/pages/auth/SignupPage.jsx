@@ -1,5 +1,5 @@
 import { Container, Paper } from '@mantine/core'
-import SignupForm from '../../components/auth/SignupForm'
+import SignupForm from './components/SignupForm'
 
 export default function SignupPage() {
     return (

@@ -4,10 +4,10 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEye } from '@fortawesome/free-solid-svg-icons'
-import { API_BASE_URL } from '../../config/config.js'
+import { API_BASE_URL } from '../../../config/config.js'
 import axios from "axios"
 
-export default function ProductsPage() {
+export default function Products() {
     const navigate = useNavigate()
     const [products, setProducts] = useState([])
     const [filteredProducts, setFilteredProducts] = useState([])
@@ -110,7 +110,7 @@ export default function ProductsPage() {
                         </Text>
                     </Group>
                     <Button
-                        onClick={() => navigate('/add-product')}
+                        onClick={() => navigate('/products/add')}
                         size="md"
                         radius="md"
                         variant="filled"
@@ -188,7 +188,7 @@ export default function ProductsPage() {
                                 transition: 'transform 200ms ease, box-shadow 200ms ease',
                                 cursor: 'pointer'
                             }}
-                            onClick={() => navigate(`/product/${product._id}`)}
+                            onClick={() => navigate(`/products/${product._id}`)}
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform = 'translateY(-5px)'
                                 e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)'

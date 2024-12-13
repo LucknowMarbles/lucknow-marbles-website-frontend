@@ -1,5 +1,3 @@
-import '../styles/pages/NotFoundPage.css'
-
 export default function NotFoundPage() {
     return (
         <div className="not-found-page">
@@ -11,4 +9,4 @@ export default function NotFoundPage() {
             </div>
         </div>
     )
-} 
+}

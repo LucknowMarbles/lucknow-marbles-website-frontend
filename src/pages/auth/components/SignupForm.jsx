@@ -1,24 +1,29 @@
 import { useState } from "react"
-import { loginUser } from '../../services/authService'
-import { validateEmail } from '../../utils/validation'
-import { useAuth } from '../../contexts/AuthContext'
+import { registerUser } from '../../../services/authService'
+import { USER_TYPES } from '../../../constants/userTypes'
+import { validateEmail, validatePhone, validatePassword } from '../../../utils/validation'
+import { useAuth } from '../../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import {
     TextInput,
     PasswordInput,
+    Select,
     Button,
     Title,
     Stack,
     Text
 } from '@mantine/core'
 
-export default function LoginForm() {
+export default function SignupForm() {
     const { login } = useAuth()
     const navigate = useNavigate()
     
     const [formData, setFormData] = useState({
+        username: "",
         email: "",
+        phoneNumber: "",
         password: "",
+        userType: USER_TYPES.CUSTOMER,
     })
 
     const [errors, setErrors] = useState({})
@@ -34,9 +39,11 @@ export default function LoginForm() {
     function validateForm() {
         const newErrors = {}
 
+        if (!formData.username) newErrors.username = "Username is required"
         if (!validateEmail(formData.email)) newErrors.email = "Invalid email address"
-        if (!formData.password) newErrors.password = "Password is required"
-        
+        if (!validatePhone(formData.phoneNumber)) newErrors.phoneNumber = "Invalid mobile number"
+        if (!validatePassword(formData.password)) newErrors.password = "Password must be at least 8 characters long"
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -49,7 +56,7 @@ export default function LoginForm() {
         setIsLoading(true)
 
         try {
-            const response = await loginUser(formData)
+            const response = await registerUser(formData)
             const { message, ...userData } = response
 
             login(userData)
@@ -68,7 +75,17 @@ export default function LoginForm() {
     return (
         <form onSubmit={handleSubmit}>
             <Stack gap="md">
-                <Title order={2} ta="center">Login</Title>
+                <Title order={2} ta="center">Sign Up</Title>
+
+                <TextInput
+                    required
+                    label="Username"
+                    name="username"
+                    value={formData.username}
+                    onChange={(e) => handleChange(e.currentTarget.value, 'username')}
+                    error={errors.username}
+                    size="md"
+                />
 
                 <TextInput
                     required
@@ -81,6 +98,16 @@ export default function LoginForm() {
                     size="md"
                 />
 
+                <TextInput
+                    required
+                    label="Mobile Number"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleChange(e.currentTarget.value, 'phoneNumber')}
+                    error={errors.phoneNumber}
+                    size="md"
+                />
+
                 <PasswordInput
                     required
                     label="Password"
@@ -88,6 +115,18 @@ export default function LoginForm() {
                     value={formData.password}
                     onChange={(e) => handleChange(e.currentTarget.value, 'password')}
                     error={errors.password}
+                    size="md"
+                />
+
+                <Select
+                    label="User Type"
+                    name="userType"
+                    value={formData.userType}
+                    onChange={(value) => handleChange(value, 'userType')}
+                    data={Object.values(USER_TYPES).map(type => ({
+                        value: type,
+                        label: type.charAt(0).toUpperCase() + type.slice(1)
+                    }))}
                     size="md"
                 />
 
@@ -110,7 +149,7 @@ export default function LoginForm() {
                         }
                     })}
                 >
-                    {isLoading ? "Logging in..." : "Login"}
+                    {isLoading ? "Signing up..." : "Sign Up"}
                 </Button>
 
                 {errors.submit && (

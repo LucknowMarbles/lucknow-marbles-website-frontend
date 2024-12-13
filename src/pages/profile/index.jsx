@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useAuth } from "../contexts/AuthContext"
+import { useAuth } from "../../contexts/AuthContext.jsx"
 import {
     Container,
     Paper,
@@ -12,7 +12,7 @@ import {
     Button,
     Badge
 } from '@mantine/core'
-import { API_BASE_URL } from '../config/config.js'
+import { API_BASE_URL } from '../../config/config.js'
 import axios from 'axios'
 
 export default function ProfilePage() {

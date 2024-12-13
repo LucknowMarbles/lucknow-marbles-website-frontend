@@ -2,13 +2,13 @@ import { TextInput, NumberInput, Select, FileInput, Button, Paper, Stack, Group,
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useState, useEffect } from 'react'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '../../../../contexts/AuthContext.jsx'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { MultiSelect } from '@mantine/core'
-import { API_BASE_URL } from '../../config/config.js'
+import { API_BASE_URL } from '../../../../config/config.js'
 
 export default function EditProductPage() {
     const { user } = useAuth()
@@ -154,7 +154,7 @@ export default function EditProductPage() {
                 color: 'teal',
             })
 
-            navigate(`/product/${id}`)
+            navigate(`/products/${id}`)
         } catch (error) {
             notifications.show({
                 title: 'Error',
@@ -171,7 +171,7 @@ export default function EditProductPage() {
             <Button
                 variant="subtle"
                 leftSection={<FontAwesomeIcon icon={faArrowLeft} />}
-                onClick={() => navigate(`/product/${id}`)}
+                onClick={() => navigate(`/products/${id}`)}
                 mb="xl"
             >
                 Back to Product
