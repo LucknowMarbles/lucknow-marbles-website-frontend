@@ -2,18 +2,20 @@ import {
     Container,
     Title,
     Text,
-    Button,
     Card,
     Grid,
-    Group,
-    Stack,
-    Skeleton
+    Stack
 } from '@mantine/core'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useState, useEffect } from 'react'
 import { API_BASE_URL } from '../../config/config.js'
 import axios from 'axios'
+
+// Import new components
+import { DashboardCard } from './components/DashboardCard'
+import { LoadingView } from './components/LoadingView'
+import { ErrorView } from './components/ErrorView'
+import { UnauthorizedView } from './components/UnauthorizedView'
 
 export default function Dashboard() {
     const { user } = useAuth()
@@ -48,7 +50,7 @@ export default function Dashboard() {
     
     }, [user])
 
-    
+
     const getAuthorizedCards = () => {
         if (!permissions) return []
 
@@ -73,116 +75,24 @@ export default function Dashboard() {
         return cards
     }
 
+
     if (!user) {
-        return (
-            <Container size="lg" py="xl">
-                <Stack gap="xl" align="center">
-                    <Title
-                        order={1}
-                        ta="center"
-                        variant="gradient"
-                        gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
-                    >
-                        Welcome to Lucknow Marbles
-                    </Title>
-
-                    <Text size="lg" c="dimmed" ta="center" maw={580}>
-                        Internal Management System for Lucknow Marbles staff and administrators.
-                        Register or login to access inventory, sales, and business operations.
-                    </Text>
-
-                    <Group justify="center" mt="md">
-                        <Button
-                            component={Link}
-                            to="/signup"
-                            size="lg"
-                            color="blue.6"
-                            styles={(theme) => ({
-                                root: {
-                                    backgroundColor: theme.colors.blue[6],
-                                    transition: 'all 0.2s ease',
-                                    '&:hover': {
-                                        backgroundColor: theme.colors.blue[7],
-                                        transform: 'translateY(-2px)',
-                                        boxShadow: theme.shadows.md
-                                    },
-                                    '&:active': {
-                                        transform: 'translateY(0)',
-                                        backgroundColor: theme.colors.blue[8]
-                                    }
-                                }
-                            })}
-                        >
-                            Staff Registration
-                        </Button>
-                        <Button
-                            component={Link}
-                            to="/login"
-                            size="lg"
-                            variant="outline"
-                            color="blue"
-                            styles={(theme) => ({
-                                root: {
-                                    borderColor: theme.colors.blue[6],
-                                    color: theme.colors.blue[6],
-                                    transition: 'all 0.2s ease',
-                                    '&:hover': {
-                                        backgroundColor: theme.colors.blue[0],
-                                        transform: 'translateY(-2px)',
-                                        boxShadow: theme.shadows.sm,
-                                        borderColor: theme.colors.blue[7]
-                                    },
-                                    '&:active': {
-                                        transform: 'translateY(0)',
-                                        backgroundColor: theme.colors.blue[1],
-                                        borderColor: theme.colors.blue[8]
-                                    }
-                                }
-                            })}
-                        >
-                            Staff Login
-                        </Button>
-                    </Group>
-                </Stack>
-            </Container>
-        )
+        return <UnauthorizedView />
     }
+
 
     if (isLoading) {
-        return (
-            <Container size="lg" py="xl">
-                <Stack gap="xl">
-                    <Skeleton height={50} radius="md" />
-                    <Grid>
-                        {[1, 2, 3].map((i) => (
-                            <Grid.Col key={i} span={{ base: 12, sm: 6, md: 4 }}>
-                                <Skeleton height={200} radius="md" />
-                            </Grid.Col>
-                        ))}
-                    </Grid>
-                </Stack>
-            </Container>
-        )
+        return <LoadingView />
     }
+
 
     if (error) {
-        return (
-            <Container size="lg" py="xl">
-                <Stack align="center" gap="md">
-                    <Title order={2} c="red">Error Loading Dashboard</Title>
-                    <Text c="dimmed">{error}</Text>
-                    <Button 
-                        onClick={() => window.location.reload()}
-                        color="blue"
-                    >
-                        Retry
-                    </Button>
-                </Stack>
-            </Container>
-        )
+        return <ErrorView error={error} />
     }
 
+    
     const authorizedCards = getAuthorizedCards()
+
 
     return (
         <Container size="lg" py="xl">
@@ -193,35 +103,11 @@ export default function Dashboard() {
                     <Grid>
                         {authorizedCards.map((card, index) => (
                             <Grid.Col key={index} span={{ base: 12, sm: 6, md: 4 }}>
-                                <Card
-                                    component={Link}
-                                    to={card.path}
-                                    shadow="sm"
-                                    padding="lg"
-                                    radius="md"
-                                    withBorder
-                                    style={{ 
-                                        textDecoration: 'none',
-                                        color: 'inherit',
-                                        height: '100%'
-                                    }}
-                                    styles={(theme) => ({
-                                        root: {
-                                            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                                            '&:hover': {
-                                                transform: 'translateY(-5px)',
-                                                boxShadow: theme.shadows.md
-                                            }
-                                        }
-                                    })}
-                                >
-                                    <Stack gap="sm">
-                                        <Title order={3}>{card.title}</Title>
-                                        <Text size="sm" c="dimmed">
-                                            {card.description}
-                                        </Text>
-                                    </Stack>
-                                </Card>
+                                <DashboardCard
+                                    title={card.title}
+                                    description={card.description}
+                                    path={card.path}
+                                />
                             </Grid.Col>
                         ))}
                     </Grid>
