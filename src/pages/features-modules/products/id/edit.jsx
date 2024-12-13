@@ -6,10 +6,11 @@ import { useAuth } from '../../../../contexts/AuthContext.jsx'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons'
 import { MultiSelect } from '@mantine/core'
 import { API_BASE_URL } from '../../../../config/config.js'
 import PermissionGate from '../../../../components/auth/PermissionGate.jsx'
+import AIContentGeneratorModal from '../../../../components/modals/AIContentGenerator/AIContentGeneratorModal.jsx'
 
 export default function EditProductPage() {
     const { user } = useAuth()
@@ -17,6 +18,7 @@ export default function EditProductPage() {
     const { id } = useParams()
     const [loading, setLoading] = useState(true)
     const [imageUrl, setImageUrl] = useState("")
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     const form = useForm({
         initialValues: {
@@ -170,14 +172,35 @@ export default function EditProductPage() {
     return (
         <PermissionGate requiredPermission="editProducts">
             <Paper p="md" radius="md">
-                <Button
-                    variant="subtle"
-                    leftSection={<FontAwesomeIcon icon={faArrowLeft} />}
-                    onClick={() => navigate(`/products/${id}`)}
-                    mb="xl"
-                >
-                    Back to Product
-                </Button>
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    width: '100%',
+                    marginBottom: 'var(--mantine-spacing-xl)'
+                }}>
+                    <Button
+                        variant="subtle"
+                        leftSection={<FontAwesomeIcon icon={faArrowLeft} />}
+                        onClick={() => navigate(`/products/${id}`)}
+                    >
+                        Back to Product
+                    </Button>
+
+                    <Button
+                        variant="light"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        <Group spacing="xs">
+                            <FontAwesomeIcon icon={faMagicWandSparkles} />
+                            <span>AI Assistant</span>
+                        </Group>
+                    </Button>
+                </div>
+
+                <AIContentGeneratorModal
+                    opened={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                />
 
                 <form onSubmit={form.onSubmit(handleSubmit)}>
                     <Stack spacing="md">
