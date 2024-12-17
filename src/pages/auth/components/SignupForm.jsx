@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { registerUser } from '../../../services/authService'
-import { USER_TYPES } from '../../../constants/userTypes'
 import { validateEmail, validatePhone, validatePassword } from '../../../utils/validation'
 import { useAuth } from '../../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
@@ -14,6 +13,14 @@ import {
     Text
 } from '@mantine/core'
 
+const ROLES = {
+    SUPER_ADMIN: 'superAdmin',
+    ADMIN: 'admin',
+    EMPLOYEE: 'employee',
+    CUSTOMER: 'customer',
+    VENDOR: 'vendor'
+}
+
 export default function SignupForm() {
     const { login } = useAuth()
     const navigate = useNavigate()
@@ -23,7 +30,7 @@ export default function SignupForm() {
         email: "",
         phoneNumber: "",
         password: "",
-        userType: USER_TYPES.CUSTOMER,
+        roleName: ROLES.CUSTOMER,
     })
 
     const [errors, setErrors] = useState({})
@@ -119,13 +126,13 @@ export default function SignupForm() {
                 />
 
                 <Select
-                    label="User Type"
-                    name="userType"
-                    value={formData.userType}
-                    onChange={(value) => handleChange(value, 'userType')}
-                    data={Object.values(USER_TYPES).map(type => ({
-                        value: type,
-                        label: type.charAt(0).toUpperCase() + type.slice(1)
+                    label="Role"
+                    name="roleName"
+                    value={formData.roleName}
+                    onChange={(value) => handleChange(value, 'roleName')}
+                    data={Object.values(ROLES).map(role => ({
+                        value: role,
+                        label: role.charAt(0).toUpperCase() + role.slice(1)
                     }))}
                     size="md"
                 />
