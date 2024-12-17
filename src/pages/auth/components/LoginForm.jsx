@@ -50,9 +50,9 @@ export default function LoginForm() {
 
         try {
             const response = await loginUser(formData)
-            const { message, ...userData } = response
+            const { message, ...authData } = response
 
-            login(userData)
+            login(authData)
             console.log(message)
 
             navigate('/')

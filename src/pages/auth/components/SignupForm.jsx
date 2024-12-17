@@ -57,9 +57,9 @@ export default function SignupForm() {
 
         try {
             const response = await registerUser(formData)
-            const { message, ...userData } = response
+            const { message, ...authData } = response
 
-            login(userData)
+            login(authData)
             console.log(message)
 
             navigate('/')

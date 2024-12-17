@@ -28,13 +28,23 @@ export default function Dashboard() {
             if (!user) return
             
             try {
-                const { data } = await axios.get(`${API_BASE_URL}/api/users/permissions`, {
+                const { data } = await axios.get(`${API_BASE_URL}/api/user/roles-permissions`, {
                     headers: {
                         Authorization: `Bearer ${user.token}`
                     }
                 })
                 
-                setPermissions(data)
+                // Transform permissions into a flat structure of permission codes
+                const allPermissionCodes = new Set([
+                    // Get permission codes from roles
+                    ...data.roles.flatMap(role => 
+                        role.permissions.map(perm => perm.code)
+                    ),
+                    // Get permission codes from custom permissions
+                    ...data.customPermissions.map(perm => perm.code)
+                ])
+
+                setPermissions(allPermissionCodes)
             }
             catch (err) {
                 const message = err.response?.data?.message || "Failed to fetch permissions"
@@ -56,19 +66,13 @@ export default function Dashboard() {
 
         const cards = []
         
-        if (permissions.viewProducts) {
+        if (permissions.has('products:view')) {
             cards.push({ title: 'Products', path: '/products', description: 'Manage product inventory and categories' })
         }
-        if (permissions.viewUsers) {
+        if (permissions.has('users:view')) {
             cards.push({ title: 'Users', path: '/users', description: 'Manage staff and user accounts' })
         }
-        if (permissions.viewOrders) {
-            cards.push({ title: 'Orders', path: '/orders', description: 'View and manage customer orders' })
-        }
-        if (permissions.viewEnquiries) {
-            cards.push({ title: 'Enquiries', path: '/enquiries', description: 'Handle customer enquiries' })
-        }
-        if (permissions.viewSalesReports) {
+        if (permissions.has('transactions:view')) {
             cards.push({ title: 'Sales', path: '/sales', description: 'View sales reports and analytics' })
         }
 

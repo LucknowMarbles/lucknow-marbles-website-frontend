@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../config/config.js'
 
 export const registerUser = async (userData) => {
     try {
-        const { data } = await axios.post(`${API_BASE_URL}/api/users/register`, userData)
+        const { data } = await axios.post(`${API_BASE_URL}/api/user/register`, userData)
         return data
     }
     catch (error) {
@@ -13,7 +13,7 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (credentials) => {
     try {
-        const { data } = await axios.post(`${API_BASE_URL}/api/users/login`, credentials)
+        const { data } = await axios.post(`${API_BASE_URL}/api/user/login`, credentials)
         return data
     }
     catch (error) {

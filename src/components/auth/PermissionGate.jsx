@@ -20,13 +20,21 @@ export default function PermissionGate({ requiredPermission, children }) {
             }
             
             try {
-                const { data } = await axios.get(`${API_BASE_URL}/api/users/permissions`, {
+                const { data } = await axios.get(`${API_BASE_URL}/api/user/roles-permissions`, {
                     headers: {
                         Authorization: `Bearer ${user.token}`
                     }
                 })
                 
-                setPermissions(data)
+                // Transform permissions into a flat structure of permission codes
+                const allPermissionCodes = new Set([
+                    ...data.roles.flatMap(role => 
+                        role.permissions.map(perm => perm.code)
+                    ),
+                    ...data.customPermissions.map(perm => perm.code)
+                ])
+
+                setPermissions(allPermissionCodes)
             }
             catch (err) {
                 const errorMessage = err.response?.data?.message || err.message
@@ -42,7 +50,8 @@ export default function PermissionGate({ requiredPermission, children }) {
     
     }, [user])
 
-    
+    const hasPermission = permissions?.has(requiredPermission)
+
     if (!user) {
         return (
             <Container size="lg" py="xl">
@@ -96,7 +105,7 @@ export default function PermissionGate({ requiredPermission, children }) {
         )
     }
 
-    if (!permissions?.[requiredPermission]) {
+    if (!hasPermission) {
         return (
             <Container size="lg" py="xl">
                 <Card withBorder p="xl" radius="md">
