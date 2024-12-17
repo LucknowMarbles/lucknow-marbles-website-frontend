@@ -15,6 +15,8 @@ import Products from './pages/features-modules/products'
 import AddProductPage from './pages/features-modules/products/add'
 import ProductDetailsPage from './pages/features-modules/products/id'
 import EditProductPage from './pages/features-modules/products/id/edit'
+import Users from './pages/users'
+import UserDetailsPage from './pages/users/id'
 
 export default function App() {
     return (
@@ -37,6 +39,8 @@ export default function App() {
                                     <Route path="/login" element={<LoginPage />} />
                                     <Route path="/signup" element={<SignupPage />} />
                                     <Route path="/profile" element={<ProfilePage />} />
+                                    <Route path="/users" element={<Users />} />
+                                    <Route path="/users/:id" element={<UserDetailsPage />} />
                                     <Route path="/products">
                                         <Route index element={<Products />} />
                                         <Route path="add" element={<AddProductPage />} />
