@@ -5,7 +5,18 @@ import axios from 'axios'
 
 
 const CustomButtonComponent = (props) => {
-    return <Button onClick={() => window.alert('clicked')}>{props.value}</Button>
+    const { value, data, colDef } = props
+    const url = colDef.cellRendererParams?.urls?.[data.id]
+
+    return <Button onClick={() => window.alert(url)}>{value}</Button>
+}
+
+
+function constructFilteredUrl(modelName, data) {
+    const baseUrl = `http://localhost:1337/api/${modelName}`
+    const id = data[0].id
+
+    return `${baseUrl}?filters[id][$eq]=${id}`
 }
 
 
@@ -21,7 +32,7 @@ export default function AgGridUI({ url }) {
                 
                 // Set the row data
                 const rows = []
-                const nestedFields = []
+                const nestedColsData = {}
 
                 for (let i = 0; i < items.length; i++) {
                     const item = items[i]
@@ -29,8 +40,14 @@ export default function AgGridUI({ url }) {
 
                     for (let key in item) {
                         if (Array.isArray(item[key])) {
-                            nestedFields.push(key)
                             row[key] = "View " + key.toUpperCase()
+                            
+                            if (!nestedColsData[key]) {
+                                nestedColsData[key] = []
+                            
+                            }
+
+                            nestedColsData[key].push(constructFilteredUrl(key, item[key]))
                         }
                         else {
                             row[key] = item[key]
@@ -49,8 +66,18 @@ export default function AgGridUI({ url }) {
                 for (let i = 0; i < keys.length; i++) {
                     const key = keys[i]
 
-                    if (nestedFields.includes(key)) {
-                        cols.push({ field: key, filter: true, cellRenderer: CustomButtonComponent })
+                    if (Object.keys(nestedColsData).includes(key)) {
+                        cols.push({
+                            field: key,
+                            filter: true,
+                            cellRenderer: CustomButtonComponent,
+                            cellRendererParams: {
+                                urls: nestedColsData[key].reduce((acc, url, index) => {
+                                    acc[items[index].id] = url
+                                    return acc
+                                }, {})
+                            }
+                        })
                     }
                     else {
                         cols.push({ field: key, filter: true, editable: true })
