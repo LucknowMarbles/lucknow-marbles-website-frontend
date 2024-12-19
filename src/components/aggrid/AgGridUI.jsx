@@ -5,10 +5,17 @@ import axios from 'axios'
 
 
 const CustomButtonComponent = (props) => {
-    const { value, data, colDef } = props
+    const { value, data, colDef, onButtonClick } = props
     const url = colDef.cellRendererParams?.urls?.[data.id]
 
-    return <Button onClick={() => window.alert(url)}>{value}</Button>
+    return (
+        <Button 
+            onClick={() => onButtonClick?.(url)}
+            variant="light"
+        >
+            {value}
+        </Button>
+    )
 }
 
 
@@ -20,7 +27,7 @@ function constructFilteredUrl(modelName, data) {
 }
 
 
-export default function AgGridUI({ url }) {
+export default function AgGridUI({ url, onButtonClick }) {
     const [rowData, setRowData] = useState([{ greet: "Hello, world!" }])
     const [colDefs, setColDefs] = useState([{ field: "greet", filter: true, editable: true, cellRenderer: CustomButtonComponent }])
 
@@ -75,7 +82,8 @@ export default function AgGridUI({ url }) {
                                 urls: nestedColsData[key].reduce((acc, url, index) => {
                                     acc[items[index].id] = url
                                     return acc
-                                }, {})
+                                }, {}),
+                                onButtonClick
                             }
                         })
                     }
@@ -93,13 +101,14 @@ export default function AgGridUI({ url }) {
 
         fetchData()
 
-    }, [])
+    }, [url, onButtonClick])
 
     return (
-        <div style={{ height: 500 }}>
+        <div style={{ height: '100%' }}>
             <AgGridReact
                 rowData={rowData}
                 columnDefs={colDefs}
+                domLayout="normal"
             />
         </div>
     )

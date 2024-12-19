@@ -19,7 +19,7 @@ import EditProductPage from './pages/features-modules/products/id/edit'
 import Users from './pages/users'
 import UserDetailsPage from './pages/users/id'
 import { apiUrls } from './config/urls'
-import AgGridUI from './components/aggrid/AgGridUI'
+import AgGridContainer from './components/aggrid/AgGridContainer'
 
 
 ModuleRegistry.registerModules([AllCommunityModule])
@@ -61,7 +61,7 @@ export default function App() {
                                         <Route 
                                             key={urlData.route}
                                             path={urlData.route} 
-                                            element={<AgGridUI url={urlData.url} />} 
+                                            element={<AgGridContainer url={urlData.url} />} 
                                         />
                                     ))}
 
