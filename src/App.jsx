@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { MantineProvider, AppShell } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
 import { ModalsProvider } from '@mantine/modals'
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
 import Navigation from './components/layout/Navigation'
 import Dashboard from './pages/dashboard'
 import LoginPage from './pages/auth/LoginPage'
@@ -17,6 +18,12 @@ import ProductDetailsPage from './pages/features-modules/products/id'
 import EditProductPage from './pages/features-modules/products/id/edit'
 import Users from './pages/users'
 import UserDetailsPage from './pages/users/id'
+import { apiUrls } from './config/urls'
+import AgGridUI from './components/aggrid/AgGridUI'
+
+
+ModuleRegistry.registerModules([AllCommunityModule])
+
 
 export default function App() {
     return (
@@ -49,6 +56,15 @@ export default function App() {
                                             <Route path="edit" element={<EditProductPage />} />
                                         </Route>
                                     </Route>
+
+                                    {apiUrls.map((urlData) => (
+                                        <Route 
+                                            key={urlData.route}
+                                            path={urlData.route} 
+                                            element={<AgGridUI url={urlData.url} />} 
+                                        />
+                                    ))}
+
                                     <Route path="*" element={<NotFoundPage />} />
                                 </Routes>
                             </AppShell.Main>
