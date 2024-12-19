@@ -18,9 +18,29 @@ export default function AgGridUI({ url }) {
             try {
                 const { data } = await axios.get(url)
                 const items = data.data
-
+                
                 // Set the row data
-                setRowData(items)
+                const rows = []
+                const nestedFields = []
+
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i]
+                    const row = {}
+
+                    for (let key in item) {
+                        if (Array.isArray(item[key])) {
+                            nestedFields.push(key)
+                            row[key] = "View " + key.toUpperCase()
+                        }
+                        else {
+                            row[key] = item[key]
+                        }
+                    }
+
+                    rows.push(row)
+                }
+
+                setRowData(rows)
 
                 // Set the column definitions
                 const keys = Object.keys(items[0])
@@ -28,7 +48,13 @@ export default function AgGridUI({ url }) {
 
                 for (let i = 0; i < keys.length; i++) {
                     const key = keys[i]
-                    cols.push({ field: key, filter: true, editable: true })
+
+                    if (nestedFields.includes(key)) {
+                        cols.push({ field: key, filter: true, cellRenderer: CustomButtonComponent })
+                    }
+                    else {
+                        cols.push({ field: key, filter: true, editable: true })
+                    }
                 }
 
                 setColDefs(cols)
