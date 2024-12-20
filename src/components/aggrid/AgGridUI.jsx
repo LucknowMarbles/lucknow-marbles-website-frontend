@@ -1,23 +1,74 @@
 import React, { useEffect, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
-import { Button } from '@mantine/core'
+import { Button, Modal, Stack } from '@mantine/core'
 import axios from 'axios'
 
-
-const CustomButtonComponent = (props) => {
-    const { value, data, colDef, onButtonClick } = props
-    const url = colDef.cellRendererParams?.urls?.[data.id]
-
+const RelationListModal = ({ isOpen, onClose, items, fieldName, onItemSelect }) => {
     return (
-        <Button 
-            onClick={() => onButtonClick?.(url)}
-            variant="light"
+        <Modal 
+            opened={isOpen} 
+            onClose={onClose}
+            title={`Select ${fieldName}`}
+            size="md"
         >
-            {value}
-        </Button>
+            <Stack>
+                {items.map((item, index) => (
+                    <Button
+                        key={item.id || index}
+                        variant="light"
+                        onClick={() => {
+                            onItemSelect(item)
+                            onClose()
+                        }}
+                    >
+                        {item.attributes?.name || `Item ${item.id || index + 1}`}
+                    </Button>
+                ))}
+            </Stack>
+        </Modal>
     )
 }
 
+const CustomButtonComponent = (props) => {
+    const { value, data, colDef } = props
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    
+    const handleClick = () => {
+        const items = colDef.cellRendererParams?.items?.[data.id]
+
+        if (Array.isArray(items) && items.length > 1) {
+            setIsModalOpen(true)
+        }
+        else {
+            const url = colDef.cellRendererParams?.urls?.[data.id]
+            props.onButtonClick?.(url)
+        }
+    }
+
+    const handleItemSelect = (item) => {
+        const url = constructFilteredUrl(colDef.field, [item])
+        props.onButtonClick?.(url)
+    }
+
+    return (
+        <>
+            <Button 
+                onClick={handleClick}
+                variant="light"
+            >
+                {value}
+            </Button>
+            
+            <RelationListModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                items={colDef.cellRendererParams?.items?.[data.id] || []}
+                fieldName={colDef.field}
+                onItemSelect={handleItemSelect}
+            />
+        </>
+    )
+}
 
 function isRelationalField(value) {
     // Check for array of relations
@@ -69,9 +120,9 @@ export default function AgGridUI({ url, onButtonClick }) {
                 const { data } = await axios.get(url)
                 const items = data.data
                 
-                // Set the row data
                 const rows = []
                 const nestedColsData = {}
+                const nestedItemsData = {}
 
                 for (let i = 0; i < items.length; i++) {
                     const item = items[i]
@@ -84,11 +135,17 @@ export default function AgGridUI({ url, onButtonClick }) {
                             
                             if (!nestedColsData[key]) {
                                 nestedColsData[key] = []
+                                nestedItemsData[key] = {}
                             }
 
                             const url = constructFilteredUrl(key, item[key])
                             if (url) {
                                 nestedColsData[key].push(url)
+
+                                // Store the actual relation items
+                                nestedItemsData[key][item.id] = Array.isArray(item[key]) 
+                                    ? item[key] 
+                                    : [item[key].data]
                             }
                         }
                         else {
@@ -103,13 +160,9 @@ export default function AgGridUI({ url, onButtonClick }) {
 
                 // Set the column definitions
                 const keys = Object.keys(items[0])
-                const cols = []
-
-                for (let i = 0; i < keys.length; i++) {
-                    const key = keys[i]
-
+                const cols = keys.map(key => {
                     if (Object.keys(nestedColsData).includes(key)) {
-                        cols.push({
+                        return {
                             field: key,
                             filter: true,
                             cellRenderer: CustomButtonComponent,
@@ -118,19 +171,19 @@ export default function AgGridUI({ url, onButtonClick }) {
                                     acc[items[index].id] = url
                                     return acc
                                 }, {}),
+                                items: nestedItemsData[key],
                                 onButtonClick
                             }
-                        })
+                        }
                     }
-                    else {
-                        cols.push({ field: key, filter: true, editable: true })
-                    }
-                }
+
+                    return { field: key, filter: true, editable: true }
+                })
 
                 setColDefs(cols)
             }
             catch (error) {
-
+                console.error('Error fetching data:', error)
             }
         }
 
