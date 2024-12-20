@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import { Button, Modal, Stack } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
 import axios from 'axios'
 import pluralize from 'pluralize'
 
@@ -197,6 +198,11 @@ export default function AgGridUI({ url, onButtonClick }) {
             }
             catch (error) {
                 console.error('Error fetching data:', error)
+                notifications.show({
+                    title: 'Error',
+                    message: error.message || 'Failed to fetch data',
+                    color: 'red'
+                })
             }
         }
 
