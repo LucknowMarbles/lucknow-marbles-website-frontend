@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import { Button, Modal, Stack } from '@mantine/core'
 import axios from 'axios'
+import pluralize from 'pluralize'
 
 const RelationListModal = ({ isOpen, onClose, items, fieldName, onItemSelect }) => {
     return (
@@ -98,15 +99,12 @@ function getRelationalValue(key, value) {
 }
 
 function constructFilteredUrl(modelName, data) {
-    // Get plural model name
-    // TODO: This is a hack to get the plural form of the model name
-    const pluralModelName = modelName.endsWith('s') ? modelName : `${modelName}s`
+    const pluralModelName = pluralize(modelName)
     const baseUrl = `http://localhost:1337/api/${pluralModelName}`
     
-    // Get id from data
     const id = Array.isArray(data) ? data[0].id : data?.id
-
     if (!id) return null
+    
     return `${baseUrl}?populate=*&filters[id][$eq]=${id}`
 }
 
