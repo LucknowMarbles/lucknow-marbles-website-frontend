@@ -76,8 +76,8 @@ function isRelationalField(value) {
         return true
     }
     
-    // Check for single relation object
-    if (value && typeof value === 'object' && 'data' in value) {
+    // Check for relation object (will have id)
+    if (value && typeof value === 'object' && 'id' in value) {
         return true
     }
 
@@ -89,7 +89,8 @@ function getRelationalValue(key, value) {
         return `View ${value.length} ${key.toUpperCase()}`
     }
     
-    if (value?.data) {
+    // Check for single relation
+    if (value && 'id' in value) {
         return `View ${key.toUpperCase()}`
     }
 
@@ -97,16 +98,16 @@ function getRelationalValue(key, value) {
 }
 
 function constructFilteredUrl(modelName, data) {
-    const baseUrl = `http://localhost:1337/api/${modelName}`
+    // Get plural model name
+    // TODO: This is a hack to get the plural form of the model name
+    const pluralModelName = modelName.endsWith('s') ? modelName : `${modelName}s`
+    const baseUrl = `http://localhost:1337/api/${pluralModelName}`
     
-    // Handle different relation data structures
-    const id = Array.isArray(data) ? data[0].id : 
-              data?.data?.id || 
-              data?.id || 
-              null
+    // Get id from data
+    const id = Array.isArray(data) ? data[0].id : data?.id
 
     if (!id) return null
-    return `${baseUrl}?filters[id][$eq]=${id}`
+    return `${baseUrl}?populate=*&filters[id][$eq]=${id}`
 }
 
 
@@ -138,14 +139,20 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 nestedItemsData[key] = {}
                             }
 
+                            // Handle both array and single relation cases
+                            const relationData = item[key]
+                            if (Array.isArray(relationData)) {
+                                // For array relations (like pieces)
+                                nestedItemsData[key][item.id] = relationData
+                            }
+                            else {
+                                // For single relations (like product)
+                                nestedItemsData[key][item.id] = [relationData]
+                            }
+
                             const url = constructFilteredUrl(key, item[key])
                             if (url) {
                                 nestedColsData[key].push(url)
-
-                                // Store the actual relation items
-                                nestedItemsData[key][item.id] = Array.isArray(item[key]) 
-                                    ? item[key] 
-                                    : [item[key].data]
                             }
                         }
                         else {
