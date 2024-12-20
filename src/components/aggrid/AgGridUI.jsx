@@ -71,7 +71,12 @@ const CustomButtonComponent = (props) => {
     )
 }
 
-function isRelationalField(value) {
+function isRelationalField(fieldName, value) {
+    // Exclude Image field from being treated as a relation
+    if (fieldName === 'Image') {
+        return false
+    }
+
     // Check for array of relations
     if (Array.isArray(value)) {
         return true
@@ -128,7 +133,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                     const row = {}
 
                     for (let key in item) {
-                        if (isRelationalField(item[key])) {
+                        if (isRelationalField(key, item[key])) {
                             const displayValue = getRelationalValue(key, item[key])
                             row[key] = displayValue
                             
@@ -152,6 +157,9 @@ export default function AgGridUI({ url, onButtonClick }) {
                             if (url) {
                                 nestedColsData[key].push(url)
                             }
+                        }
+                        else if (key === 'Image' && Array.isArray(item[key])) {
+                            row[key] = item[key][0]?.url || null
                         }
                         else {
                             row[key] = item[key]
