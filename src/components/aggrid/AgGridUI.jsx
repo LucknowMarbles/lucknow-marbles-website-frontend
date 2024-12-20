@@ -19,10 +19,42 @@ const CustomButtonComponent = (props) => {
 }
 
 
+function isRelationalField(value) {
+    // Check for array of relations
+    if (Array.isArray(value)) {
+        return true
+    }
+    
+    // Check for single relation object
+    if (value && typeof value === 'object' && 'data' in value) {
+        return true
+    }
+
+    return false
+}
+
+function getRelationalValue(key, value) {
+    if (Array.isArray(value)) {
+        return `View ${value.length} ${key.toUpperCase()}`
+    }
+    
+    if (value?.data) {
+        return `View ${key.toUpperCase()}`
+    }
+
+    return null
+}
+
 function constructFilteredUrl(modelName, data) {
     const baseUrl = `http://localhost:1337/api/${modelName}`
-    const id = data[0].id
+    
+    // Handle different relation data structures
+    const id = Array.isArray(data) ? data[0].id : 
+              data?.data?.id || 
+              data?.id || 
+              null
 
+    if (!id) return null
     return `${baseUrl}?filters[id][$eq]=${id}`
 }
 
@@ -46,15 +78,18 @@ export default function AgGridUI({ url, onButtonClick }) {
                     const row = {}
 
                     for (let key in item) {
-                        if (Array.isArray(item[key])) {
-                            row[key] = "View " + key.toUpperCase()
+                        if (isRelationalField(item[key])) {
+                            const displayValue = getRelationalValue(key, item[key])
+                            row[key] = displayValue
                             
                             if (!nestedColsData[key]) {
                                 nestedColsData[key] = []
-                            
                             }
 
-                            nestedColsData[key].push(constructFilteredUrl(key, item[key]))
+                            const url = constructFilteredUrl(key, item[key])
+                            if (url) {
+                                nestedColsData[key].push(url)
+                            }
                         }
                         else {
                             row[key] = item[key]
