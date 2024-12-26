@@ -120,8 +120,8 @@ function constructFilteredUrl(modelName, data) {
 
 export default function AgGridUI({ url, onButtonClick }) {
     const { user } = useAuth()
-    const [rowData, setRowData] = useState([{ greet: "Hello, world!" }])
-    const [colDefs, setColDefs] = useState([{ field: "greet", filter: true, editable: true, cellRenderer: CustomButtonComponent }])
+    const [rowData, setRowData] = useState([]) // [{ greet: "Hello, world!" }]
+    const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: CustomButtonComponent }]
 
     useEffect(() => {
         async function fetchData() {
