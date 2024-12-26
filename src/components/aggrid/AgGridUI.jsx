@@ -4,6 +4,7 @@ import { Button, Modal, Stack } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import axios from 'axios'
 import pluralize from 'pluralize'
+import { useAuth } from '../../contexts/AuthContext'
 
 const RelationListModal = ({ isOpen, onClose, items, fieldName, onItemSelect }) => {
     return (
@@ -43,7 +44,9 @@ const CustomButtonComponent = (props) => {
         }
         else {
             const url = colDef.cellRendererParams?.urls?.[data.id]
-            props.onButtonClick?.(url)
+            
+            if (url)
+                props.onButtonClick?.(url)
         }
     }
 
@@ -108,7 +111,7 @@ function constructFilteredUrl(modelName, data) {
     const pluralModelName = pluralize(modelName)
     const baseUrl = `http://localhost:1337/api/${pluralModelName}`
     
-    const id = Array.isArray(data) ? data[0].id : data?.id
+    const id = Array.isArray(data) && data.length > 0 ? data[0].id : data?.id
     if (!id) return null
     
     return `${baseUrl}?populate=*&filters[id][$eq]=${id}`
@@ -116,13 +119,18 @@ function constructFilteredUrl(modelName, data) {
 
 
 export default function AgGridUI({ url, onButtonClick }) {
+    const { user } = useAuth()
     const [rowData, setRowData] = useState([{ greet: "Hello, world!" }])
     const [colDefs, setColDefs] = useState([{ field: "greet", filter: true, editable: true, cellRenderer: CustomButtonComponent }])
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const { data } = await axios.get(url)
+                const { data } = await axios.get(url, {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`
+                    }
+                })
                 const items = data.data
                 
                 const rows = []
@@ -173,26 +181,30 @@ export default function AgGridUI({ url, onButtonClick }) {
                 setRowData(rows)
 
                 // Set the column definitions
-                const keys = Object.keys(items[0])
-                const cols = keys.map(key => {
-                    if (Object.keys(nestedColsData).includes(key)) {
-                        return {
-                            field: key,
-                            filter: true,
-                            cellRenderer: CustomButtonComponent,
-                            cellRendererParams: {
-                                urls: nestedColsData[key].reduce((acc, url, index) => {
-                                    acc[items[index].id] = url
-                                    return acc
-                                }, {}),
-                                items: nestedItemsData[key],
-                                onButtonClick
+                let cols = []
+
+                if (items.length > 0) {
+                    const keys = Object.keys(items[0])
+                    cols = keys.map(key => {
+                        if (Object.keys(nestedColsData).includes(key)) {
+                            return {
+                                field: key,
+                                filter: true,
+                                cellRenderer: CustomButtonComponent,
+                                cellRendererParams: {
+                                    urls: nestedColsData[key].reduce((acc, url, index) => {
+                                        acc[items[index].id] = url
+                                        return acc
+                                    }, {}),
+                                    items: nestedItemsData[key],
+                                    onButtonClick
+                                }
                             }
                         }
-                    }
-
-                    return { field: key, filter: true, editable: true }
-                })
+    
+                        return { field: key, filter: true, editable: true }
+                    })
+                }
 
                 setColDefs(cols)
             }

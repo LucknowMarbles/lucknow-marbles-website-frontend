@@ -8,12 +8,56 @@ import {
     Text
 } from '@mantine/core'
 import { DashboardCard } from './components/DashboardCard'
-import { apiUrls } from '../../config/urls'
 import { useAuth } from '../../contexts/AuthContext'
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 export default function Dashboard() {
-    const { user } = useAuth()
+    const { user, apiUrls, fetchApiUrls } = useAuth()
+    const [errorMessage, setErrorMessage] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+
+
+    useEffect(() => {
+        async function fetchApiUrlsForRoutes() {
+            setIsLoading(true)
+
+            try {
+                await fetchApiUrls()
+            }
+            catch (error) {
+                setErrorMessage(error.message)
+            }
+            finally {
+                setIsLoading(false)
+            }
+        }
+
+        if (user)
+            fetchApiUrlsForRoutes()
+
+    }, [])
+
+
+    if (isLoading) {
+        return <p>Loading...</p>
+    }
+
+
+    if (errorMessage) {
+        return (
+            <Container size="sm" py="xl">
+                <Alert
+                    title="Unable to fetch content types"
+                    color="blue"
+                    radius="md"
+                >
+                    <Text>{errorMessage}</Text>
+                </Alert>
+            </Container>
+        )
+    }
+
 
     if (!user) {
         return (

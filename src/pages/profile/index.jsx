@@ -48,15 +48,8 @@ export default function ProfilePage() {
                     <Grid gutter="lg">
                         <Grid.Col span={12}>
                             <Stack gap={4}>
-                                <Text size="sm" c="dimmed">First Name</Text>
-                                <Text fw={500}>{user["user"]["firstname"]}</Text>
-                            </Stack>
-                        </Grid.Col>
-
-                        <Grid.Col span={12}>
-                            <Stack gap={4}>
-                                <Text size="sm" c="dimmed">Last Name</Text>
-                                <Text fw={500}>{user["user"]["lastname"]}</Text>
+                                <Text size="sm" c="dimmed">Username</Text>
+                                <Text fw={500}>{user["user"]["username"]}</Text>
                             </Stack>
                         </Grid.Col>
 

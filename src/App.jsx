@@ -7,18 +7,7 @@ import { Notifications } from '@mantine/notifications'
 import { ModalsProvider } from '@mantine/modals'
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
 import Navigation from './components/layout/Navigation'
-import Dashboard from './pages/dashboard'
-import LoginPage from './pages/auth/LoginPage'
-import ProfilePage from './pages/profile'
-import NotFoundPage from './pages/NotFoundPage'
-import Products from './pages/features-modules/products'
-import AddProductPage from './pages/features-modules/products/add'
-import ProductDetailsPage from './pages/features-modules/products/id'
-import EditProductPage from './pages/features-modules/products/id/edit'
-import Users from './pages/users'
-import UserDetailsPage from './pages/users/id'
-import { apiUrls } from './config/urls'
-import AgGridContainer from './components/aggrid/AgGridContainer'
+import AppRoutes from './AppRoutes'
 
 
 ModuleRegistry.registerModules([AllCommunityModule])
@@ -40,31 +29,7 @@ export default function App() {
                             </AppShell.Header>
 
                             <AppShell.Main>
-                                <Routes>
-                                    <Route path="/" element={<Dashboard />} />
-                                    <Route path="/login" element={<LoginPage />} />
-                                    <Route path="/profile" element={<ProfilePage />} />
-                                    <Route path="/users" element={<Users />} />
-                                    <Route path="/users/:id" element={<UserDetailsPage />} />
-                                    <Route path="/products">
-                                        <Route index element={<Products />} />
-                                        <Route path="add" element={<AddProductPage />} />
-                                        <Route path=":id">
-                                            <Route index element={<ProductDetailsPage />} />
-                                            <Route path="edit" element={<EditProductPage />} />
-                                        </Route>
-                                    </Route>
-
-                                    {apiUrls.map((urlData) => (
-                                        <Route 
-                                            key={urlData.route}
-                                            path={urlData.route} 
-                                            element={<AgGridContainer url={urlData.url} />} 
-                                        />
-                                    ))}
-
-                                    <Route path="*" element={<NotFoundPage />} />
-                                </Routes>
+                                <AppRoutes />
                             </AppShell.Main>
                         </AppShell>
                     </AuthProvider>

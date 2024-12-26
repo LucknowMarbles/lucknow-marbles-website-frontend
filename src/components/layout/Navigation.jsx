@@ -33,7 +33,7 @@ export default function Navigation() {
                                 <Menu.Target>
                                     <UnstyledButton>
                                         <Text fw={500} c="blue.7">
-                                            {user["user"]["firstname"]}
+                                            {user["user"]["username"]}
                                         </Text>
                                     </UnstyledButton>
                                 </Menu.Target>

@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { loginUser } from '../../../services/authService'
-import { validateEmail } from '../../../utils/validation'
 import { useAuth } from '../../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -17,14 +16,14 @@ export default function LoginForm() {
     const navigate = useNavigate()
     
     const [formData, setFormData] = useState({
-        email: "",
+        identifier: "",
         password: "",
     })
 
     const [errors, setErrors] = useState({})
     const [isLoading, setIsLoading] = useState(false)
 
-    function handleChange(value, name) {
+    function handleChange(name, value) {
         setFormData(prev => ({
             ...prev,
             [name]: value
@@ -34,7 +33,6 @@ export default function LoginForm() {
     function validateForm() {
         const newErrors = {}
 
-        if (!validateEmail(formData.email)) newErrors.email = "Invalid email address"
         if (!formData.password) newErrors.password = "Password is required"
         
         setErrors(newErrors)
@@ -49,10 +47,14 @@ export default function LoginForm() {
         setIsLoading(true)
 
         try {
-            const response = await loginUser(formData)
-            const { data } = response
-            login(data)
+            const data = await loginUser(formData)
 
+            // Rename jwt to token
+            const updatedData = { ...data, token: data.jwt }
+            delete updatedData.jwt
+
+            // Save credentials, and go to homepage
+            login(updatedData)
             navigate('/')
         }
         catch (error) {
@@ -70,12 +72,12 @@ export default function LoginForm() {
 
                 <TextInput
                     required
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleChange(e.currentTarget.value, 'email')}
-                    error={errors.email}
+                    label="Identifier"
+                    name="identifier"
+                    type="text"
+                    value={formData.identifier}
+                    onChange={(e) => handleChange('identifier', e.currentTarget.value)}
+                    error={errors.identifier}
                     size="md"
                 />
 
@@ -84,7 +86,7 @@ export default function LoginForm() {
                     label="Password"
                     name="password"
                     value={formData.password}
-                    onChange={(e) => handleChange(e.currentTarget.value, 'password')}
+                    onChange={(e) => handleChange('password', e.currentTarget.value)}
                     error={errors.password}
                     size="md"
                 />
