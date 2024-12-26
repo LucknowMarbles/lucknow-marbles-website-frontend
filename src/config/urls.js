@@ -1,22 +1,24 @@
+import { API_BASE_URL } from "./config"
+
 export const apiUrls = [
     {
         route: "/data/addresses",
-        url: "http://localhost:1337/api/addresses?populate=*"
+        url: `${API_BASE_URL}/api/addresses?populate=*`
     },
     {
         route: "/data/contacts",
-        url: "http://localhost:1337/api/contacts?populate=*"
+        url: `${API_BASE_URL}/api/contacts?populate=*`
     },
     {
         route: "/data/products",
-        url: "http://localhost:1337/api/products?populate=*"
+        url: `${API_BASE_URL}/api/products?populate=*`
     },
     {
         route: "/data/batches",
-        url: "http://localhost:1337/api/batches?populate=*"
+        url: `${API_BASE_URL}/api/batches?populate=*`
     },
     {
         route: "/data/transfers",
-        url: "http://localhost:1337/api/transfers?populate=*"
+        url: `${API_BASE_URL}/api/transfers?populate=*`
     }
-] 
+]
