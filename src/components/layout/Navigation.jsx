@@ -59,15 +59,6 @@ export default function Navigation() {
                             >
                                 Login
                             </Button>
-                            <Button
-                                component={Link}
-                                to="/signup"
-                                variant="filled"
-                                color="blue"
-                                size="sm"
-                            >
-                                Sign Up
-                            </Button>
                         </>
                     )}
                 </Group>

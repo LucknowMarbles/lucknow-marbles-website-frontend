@@ -16,33 +16,10 @@ export function UnauthorizedView() {
 
                 <Text size="lg" c="dimmed" ta="center" maw={580}>
                     Internal Management System for Lucknow Marbles staff and administrators.
-                    Register or login to access inventory, sales, and business operations.
+                    Login to access inventory, sales, and business operations.
                 </Text>
 
                 <Group justify="center" mt="md">
-                    <Button
-                        component={Link}
-                        to="/signup"
-                        size="lg"
-                        color="blue.6"
-                        styles={(theme) => ({
-                            root: {
-                                backgroundColor: theme.colors.blue[6],
-                                transition: 'all 0.2s ease',
-                                '&:hover': {
-                                    backgroundColor: theme.colors.blue[7],
-                                    transform: 'translateY(-2px)',
-                                    boxShadow: theme.shadows.md
-                                },
-                                '&:active': {
-                                    transform: 'translateY(0)',
-                                    backgroundColor: theme.colors.blue[8]
-                                }
-                            }
-                        })}
-                    >
-                        Staff Registration
-                    </Button>
                     <Button
                         component={Link}
                         to="/login"

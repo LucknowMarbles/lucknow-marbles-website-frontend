@@ -9,7 +9,6 @@ import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
 import Navigation from './components/layout/Navigation'
 import Dashboard from './pages/dashboard'
 import LoginPage from './pages/auth/LoginPage'
-import SignupPage from './pages/auth/SignupPage'
 import ProfilePage from './pages/profile'
 import NotFoundPage from './pages/NotFoundPage'
 import Products from './pages/features-modules/products'
@@ -44,7 +43,6 @@ export default function App() {
                                 <Routes>
                                     <Route path="/" element={<Dashboard />} />
                                     <Route path="/login" element={<LoginPage />} />
-                                    <Route path="/signup" element={<SignupPage />} />
                                     <Route path="/profile" element={<ProfilePage />} />
                                     <Route path="/users" element={<Users />} />
                                     <Route path="/users/:id" element={<UserDetailsPage />} />
