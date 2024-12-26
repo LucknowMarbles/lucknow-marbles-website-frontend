@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext.jsx"
+import { Link } from 'react-router-dom'
 import {
     Container,
     Paper,
@@ -7,61 +7,14 @@ import {
     Stack,
     Grid,
     Text,
-    Skeleton,
     Alert,
     Button,
-    Badge
 } from '@mantine/core'
-import { API_BASE_URL } from '../../config/config.js'
-import axios from 'axios'
 
 export default function ProfilePage() {
     const { user } = useAuth()
-    const [profile, setProfile] = useState(null)
-    const [isLoading, setIsLoading] = useState(true)
-    const [hasError, setHasError] = useState(false)
 
-    useEffect(() => {
-        async function fetchProfile() {
-            try {
-                const { data } = await axios.get(`${API_BASE_URL}/api/users/profile`, {
-                    headers: {
-                        Authorization: `Bearer ${user.token}`
-                    }
-                })
-                
-                setProfile(data)
-            }
-            catch (error) {
-                setHasError(true)
-                console.error("Error fetching profile:", error.response?.data || error.message)
-            }
-            finally {
-                setIsLoading(false)
-            }
-        }
-
-        fetchProfile()
-    
-    }, [user.token])
-
-    if (isLoading) {
-        return (
-            <Container size="sm" py="xl">
-                <Paper radius="md" p="xl" withBorder>
-                    <Stack gap="md">
-                        <Skeleton height={30} width="50%" radius="md" />
-                        <Skeleton height={20} radius="md" />
-                        <Skeleton height={20} radius="md" />
-                        <Skeleton height={20} radius="md" />
-                        <Skeleton height={20} radius="md" />
-                    </Stack>
-                </Paper>
-            </Container>
-        )
-    }
-
-    if (hasError) {
+    if (!user) {
         return (
             <Container size="sm" py="xl">
                 <Alert
@@ -70,14 +23,15 @@ export default function ProfilePage() {
                     radius="md"
                 >
                     <Stack gap="md">
-                        <Text>Failed to load profile information</Text>
-                        <Button 
-                            onClick={() => window.location.reload()}
+                        <Text>You must login to view profile.</Text>
+                        <Button
+                            component={Link}
+                            to="/login"
                             variant="light"
                             color="red"
                             size="sm"
                         >
-                            Retry
+                            Login
                         </Button>
                     </Stack>
                 </Alert>
@@ -94,36 +48,22 @@ export default function ProfilePage() {
                     <Grid gutter="lg">
                         <Grid.Col span={12}>
                             <Stack gap={4}>
-                                <Text size="sm" c="dimmed">Username</Text>
-                                <Text fw={500}>{profile.username}</Text>
+                                <Text size="sm" c="dimmed">First Name</Text>
+                                <Text fw={500}>{user["user"]["firstname"]}</Text>
+                            </Stack>
+                        </Grid.Col>
+
+                        <Grid.Col span={12}>
+                            <Stack gap={4}>
+                                <Text size="sm" c="dimmed">Last Name</Text>
+                                <Text fw={500}>{user["user"]["lastname"]}</Text>
                             </Stack>
                         </Grid.Col>
 
                         <Grid.Col span={12}>
                             <Stack gap={4}>
                                 <Text size="sm" c="dimmed">Email</Text>
-                                <Text fw={500}>{profile.email}</Text>
-                            </Stack>
-                        </Grid.Col>
-
-                        <Grid.Col span={12}>
-                            <Stack gap={4}>
-                                <Text size="sm" c="dimmed">Phone Number</Text>
-                                <Text fw={500}>{profile.phoneNumber}</Text>
-                            </Stack>
-                        </Grid.Col>
-
-                        <Grid.Col span={12}>
-                            <Stack gap={4}>
-                                <Text size="sm" c="dimmed">User Type</Text>
-                                <Badge 
-                                    color="blue" 
-                                    variant="light"
-                                    size="lg"
-                                    radius="sm"
-                                >
-                                    {profile.userType}
-                                </Badge>
+                                <Text fw={500}>{user["user"]["email"]}</Text>
                             </Stack>
                         </Grid.Col>
                     </Grid>
