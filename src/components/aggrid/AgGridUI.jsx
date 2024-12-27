@@ -5,12 +5,25 @@ import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
 import RelationCellRead from './custom-cells/RelationCellRead'
 import { constructFilteredUrl, getRelationalValue, isRelationalField } from './utils'
+import EditConfirmationModal from './modals/EditConfirmationModal'
+import EditActions from './EditActions'
+import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
     const { user } = useAuth()
     const [rowData, setRowData] = useState([]) // [{ greet: "Hello, world!" }]
     const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: RelationCellRead }]
+    const {
+        editingRowId,
+        showEditModal,
+        selectedRow,
+        handleOnCellDoubleClicked,
+        handleEditConfirm,
+        handleSaveChanges,
+        handleCancelEdit,
+        setShowEditModal
+    } = useGridEdit()
 
     useEffect(() => {
         async function fetchData() {
@@ -91,7 +104,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                             }
                         }
     
-                        return { field: key, filter: true, editable: true }
+                        return { field: key, filter: true, editable: false }
                     })
                 }
 
@@ -112,11 +125,26 @@ export default function AgGridUI({ url, onButtonClick }) {
     }, [url, onButtonClick])
 
     return (
-        <div style={{ height: '100%' }}>
-            <AgGridReact
-                rowData={rowData}
-                columnDefs={colDefs}
-                domLayout="normal"
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            {editingRowId && (
+                <EditActions 
+                    onSave={handleSaveChanges}
+                    onCancel={() => handleCancelEdit(rowData, setRowData)}
+                />
+            )}
+            <div style={{ flex: 1 }}>
+                <AgGridReact
+                    rowData={rowData}
+                    columnDefs={colDefs}
+                    domLayout="normal"
+                    onCellDoubleClicked={handleOnCellDoubleClicked}
+                    getRowStyle={getEditRowStyle(editingRowId)}
+                />
+            </div>
+            <EditConfirmationModal 
+                isOpen={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                onConfirm={() => setColDefs(handleEditConfirm(colDefs, selectedRow))}
             />
         </div>
     )
