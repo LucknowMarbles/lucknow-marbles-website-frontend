@@ -1,127 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
-import { Button, Modal, Stack } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import axios from 'axios'
-import pluralize from 'pluralize'
 import { useAuth } from '../../contexts/AuthContext'
-
-const RelationListModal = ({ isOpen, onClose, items, fieldName, onItemSelect }) => {
-    return (
-        <Modal 
-            opened={isOpen} 
-            onClose={onClose}
-            title={`Select ${fieldName}`}
-            size="md"
-        >
-            <Stack>
-                {items.map((item, index) => (
-                    <Button
-                        key={item.id || index}
-                        variant="light"
-                        onClick={() => {
-                            onItemSelect(item)
-                            onClose()
-                        }}
-                    >
-                        {item.attributes?.name || `Item ${item.id || index + 1}`}
-                    </Button>
-                ))}
-            </Stack>
-        </Modal>
-    )
-}
-
-const CustomButtonComponent = (props) => {
-    const { value, data, colDef } = props
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    
-    const handleClick = () => {
-        const items = colDef.cellRendererParams?.items?.[data.id]
-
-        if (Array.isArray(items) && items.length > 1) {
-            setIsModalOpen(true)
-        }
-        else {
-            const url = colDef.cellRendererParams?.urls?.[data.id]
-            
-            if (url)
-                props.onButtonClick?.(url)
-        }
-    }
-
-    const handleItemSelect = (item) => {
-        const url = constructFilteredUrl(colDef.field, [item])
-        props.onButtonClick?.(url)
-    }
-
-    return (
-        <>
-            <Button 
-                onClick={handleClick}
-                variant="light"
-            >
-                {value}
-            </Button>
-            
-            <RelationListModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                items={colDef.cellRendererParams?.items?.[data.id] || []}
-                fieldName={colDef.field}
-                onItemSelect={handleItemSelect}
-            />
-        </>
-    )
-}
-
-function isRelationalField(fieldName, value) {
-    // Exclude Image field from being treated as a relation
-    if (fieldName === 'Image') {
-        return false
-    }
-
-    // Check for array of relations
-    if (Array.isArray(value)) {
-        return true
-    }
-    
-    // Check for relation object (will have id)
-    if (value && typeof value === 'object' && 'id' in value) {
-        return true
-    }
-
-    return false
-}
-
-function getRelationalValue(key, value) {
-    if (Array.isArray(value)) {
-        return `View ${value.length} ${key.toUpperCase()}`
-    }
-    
-    // Check for single relation
-    if (value && 'id' in value) {
-        return `View ${key.toUpperCase()}`
-    }
-
-    return null
-}
-
-function constructFilteredUrl(modelName, data) {
-    const pluralModelName = pluralize(modelName)
-    const baseUrl = `http://localhost:1337/api/${pluralModelName}`
-    
-    const id = Array.isArray(data) && data.length > 0 ? data[0].id : data?.id
-    if (!id) return null
-    
-    return `${baseUrl}?populate=*&filters[id][$eq]=${id}`
-}
+import RelationCellRead from './custom-cells/RelationCellRead'
+import { constructFilteredUrl, getRelationalValue, isRelationalField } from './utils'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
     const { user } = useAuth()
     const [rowData, setRowData] = useState([]) // [{ greet: "Hello, world!" }]
-    const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: CustomButtonComponent }]
+    const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: RelationCellRead }]
 
     useEffect(() => {
         async function fetchData() {
@@ -190,7 +79,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                             return {
                                 field: key,
                                 filter: true,
-                                cellRenderer: CustomButtonComponent,
+                                cellRenderer: RelationCellRead,
                                 cellRendererParams: {
                                     urls: nestedColsData[key].reduce((acc, url, index) => {
                                         acc[items[index].id] = url
