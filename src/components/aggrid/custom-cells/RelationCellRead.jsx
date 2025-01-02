@@ -9,16 +9,10 @@ export default function RelationCellRead(props) {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const handleClick = () => {
-        const items = colDef.cellRendererParams?.items?.[data.id]
+        const items = colDef.cellRendererParams?.colRelations?.[data.id]
 
-        if (Array.isArray(items) && items.length > 1) {
+        if (Array.isArray(items)) {
             setIsModalOpen(true)
-        }
-        else {
-            const url = colDef.cellRendererParams?.urls?.[data.id]
-
-            if (url)
-                props.onButtonClick?.(url)
         }
     }
 
@@ -39,7 +33,7 @@ export default function RelationCellRead(props) {
             <RelationListModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                items={colDef.cellRendererParams?.items?.[data.id] || []}
+                items={colDef.cellRendererParams?.colRelations?.[data.id] || []}
                 fieldName={colDef.field}
                 onItemSelect={handleItemSelect}
             />

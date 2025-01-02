@@ -37,11 +37,6 @@ export function getRelationalValue(key, value) {
     if (Array.isArray(value)) {
         return `View ${value.length} ${key.toUpperCase()}`
     }
-    
-    // Check for single relation
-    if (value && 'id' in value) {
-        return `View ${key.toUpperCase()}`
-    }
 
     return null
 }

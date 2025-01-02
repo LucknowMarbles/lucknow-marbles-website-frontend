@@ -33,48 +33,65 @@ export default function AgGridUI({ url, onButtonClick }) {
                         Authorization: `Bearer ${user.token}`
                     }
                 })
-                const items = data.data
-                
-                const rows = []
-                const nestedColsData = {}
-                const nestedItemsData = {}
 
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i]
+                const rowArr = data.data
+                const rows = []
+                const allRelations = {}
+
+                // Set rows data
+                // Loop each value of the array
+                for (const rowObj of rowArr) {
                     const row = {}
 
-                    for (let key in item) {
-                        if (isRelationalField(key, item[key])) {
-                            const displayValue = getRelationalValue(key, item[key])
-                            row[key] = displayValue
-                            
-                            if (!nestedColsData[key]) {
-                                nestedColsData[key] = []
-                                nestedItemsData[key] = {}
+                    // Loops each key (column name) of the dictionary
+                    for (const key in rowObj) {
+                        if (isRelationalField(key, rowObj[key])) {
+                            if (!allRelations[key]) {
+                                allRelations[key] = {}
                             }
 
-                            // Handle both array and single relation cases
-                            const relationData = item[key]
-                            if (Array.isArray(relationData)) {
-                                // For array relations (like pieces)
-                                nestedItemsData[key][item.id] = relationData
-                            }
-                            else {
-                                // For single relations (like product)
-                                nestedItemsData[key][item.id] = [relationData]
-                            }
+                            const relation = rowObj[key]
 
-                            const url = constructFilteredUrl(key, item[key])
-                            if (url) {
-                                nestedColsData[key].push(url)
+                            if (Array.isArray(relation)) {
+                                // Relations of type - One-to-Many or Many-to-Many
+                                // These will be a list of relations (objects). Even for a single object
+                                //
+                                // Structured as [column][row]
+                                allRelations[key][rowObj.id] = relation.map(rl => {
+                                    return {
+                                        id: rl.id,
+                                        url: constructFilteredUrl(key, rowObj[key]) || ""
+                                    }
+                                })
+
+                                // Set cell display value
+                                row[key] = getRelationalValue(key, relation)
+                            }
+                            else
+                            {
+                                // Relation of type - One-to-One or Many-to-One
+                                // This will be a single relation object
+                                //
+                                // Structured as [column][row]
+                                // Put this in a list, to keep things consistent
+                                allRelations[key][rowObj.id] = [{
+                                    "id": relation.id,
+                                    "url": constructFilteredUrl(key, rowObj[key]) || ""
+                                }]
+
+                                // Set cell display value (make it array)
+                                row[key] = getRelationalValue(key, [relation])
                             }
                         }
-                        else if (key === 'Image' && Array.isArray(item[key])) {
-                            row[key] = item[key][0]?.url || null
+
+                        else if (key === "Image" && Array.isArray(rowObj[key])) {
+                            row[key] = rowObj[key][0]?.url || null // Display image url if found
                         }
+
                         else {
-                            row[key] = item[key]
+                            row[key] = rowObj[key] // Simple string
                         }
+
                     }
 
                     rows.push(row)
@@ -82,28 +99,25 @@ export default function AgGridUI({ url, onButtonClick }) {
 
                 setRowData(rows)
 
-                // Set the column definitions
+                // Set columns definitions
                 let cols = []
 
-                if (items.length > 0) {
-                    const keys = Object.keys(items[0])
+                if (rowArr.length > 0) {
+                    const keys = Object.keys(rowArr[0])
+
                     cols = keys.map(key => {
-                        if (Object.keys(nestedColsData).includes(key)) {
+                        if (allRelations.hasOwnProperty(key)) {
                             return {
                                 field: key,
                                 filter: true,
                                 cellRenderer: RelationCellRead,
                                 cellRendererParams: {
-                                    urls: nestedColsData[key].reduce((acc, url, index) => {
-                                        acc[items[index].id] = url
-                                        return acc
-                                    }, {}),
-                                    items: nestedItemsData[key],
+                                    colRelations: allRelations[key],
                                     onButtonClick
                                 }
                             }
                         }
-    
+
                         return { field: key, filter: true, editable: false }
                     })
                 }
