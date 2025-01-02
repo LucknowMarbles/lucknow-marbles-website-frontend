@@ -27,8 +27,9 @@ export const getContentTypes = async (token) => {
 
             if (cTypeName === "api") {
                 result.push({
-                    uid: ctype.uid,
-                    apiID: ctype.apiID
+                    singularName: ctype.schema.singularName,
+                    pluralName: ctype.schema.pluralName,
+                    displayName: ctype.schema.displayName
                 })
             }
 
@@ -48,11 +49,14 @@ export const getApiUrls = async (token) => {
     const contentTypes = await getContentTypes(token)
 
     const apiUrls = contentTypes.map(cType => {
-        const cTypeName = pluralize(cType.apiID)
+        const { singularName, pluralName, displayName } = cType
 
         return {
-            route: `/data/${cTypeName}`,
-            url: `${API_BASE_URL}/api/${cTypeName}?populate=*`
+            route: `/data/${pluralName}`,
+            url: `${API_BASE_URL}/api/${pluralName}?populate=*`,
+            singularName,
+            pluralName,
+            displayName
         }
     })
 
