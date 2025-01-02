@@ -22,7 +22,7 @@ export function useGridEdit() {
             ...col,
             editable: (params) => {
                 return params.data.id === selectedRow.id && 
-                       !Object.keys(col.cellRendererParams || {}).includes('urls')
+                       !Object.keys(col.cellRendererParams || {}).includes('colRelations')
             }
         }))
     }
