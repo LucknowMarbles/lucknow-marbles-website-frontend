@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { MultiSelect, Loader } from '@mantine/core'
+import axios from 'axios'
+import { useAuth } from '../../../contexts/AuthContext'
 
 export default function CellRelationWriteMultiple(props) {
+    const { user } = useAuth()
     const { data, colDef } = props
 
     // Get the relation data from AG-Grid
-    const relations = colDef.cellRendererParams?.colRelations?.[data.id] || null
+    const relations = colDef.cellRendererParams?.colRelations || null
 
     // Initialize states
     const [selectedItems, setSelectedItems] = useState([])
@@ -13,22 +16,32 @@ export default function CellRelationWriteMultiple(props) {
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        // Simulate API call
         async function fetchOptions() {
             setIsLoading(true)
 
             try {
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 1500))
+                // Get response data
+                const response = await axios.get(relations.modelUrl, {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`
+                    }
+                })
 
-                if (relations) {
-                    const relationOptions = relations.map(relation => ({
-                        value: relation.id.toString(),
-                        label: `Item ${relation.id}`
+                // Get ids from response data
+                const rowArr = response.data.data
+                const ids = rowArr.map(row => row.id)
+
+                if (ids) {
+                    const relationOptions = ids.map(id => ({
+                        value: id.toString(),
+                        label: `ID: ${id}`
                     }))
 
                     setOptions(relationOptions)
-                    setSelectedItems(relationOptions.map(relationOp => relationOp.value))
+
+                    // Set selected options
+                    const selections = colDef.cellRendererParams?.colRelations?.[data.id]
+                    setSelectedItems(selections.map(s => s.id.toString()))
                 }
             }
             catch(error) {

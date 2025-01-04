@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Select, Loader } from '@mantine/core'
+import { useAuth } from '../../../contexts/AuthContext'
+import axios from 'axios'
 
 export default function CellRelationWrite(props) {
+    const { user } = useAuth()
     const { data, colDef } = props
     
     // Get the relation data from AG-Grid
-    const relation = colDef.cellRendererParams?.colRelations?.[data.id][0] || null
+    const relation = colDef.cellRendererParams?.colRelations || null
 
     // Initialize states
     const [selectedItem, setSelectedItem] = useState("")
@@ -13,22 +16,32 @@ export default function CellRelationWrite(props) {
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        // Simulate API call
         async function fetchOptions() {
             setIsLoading(true)
 
             try {
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 1500))
-
-                if (relation) {
-                    const relationOption = {
-                        value: relation.id.toString(),
-                        label: `Item ${relation.id}`
+                // Get response data
+                const response = await axios.get(relation.modelUrl, {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`
                     }
-                    
-                    setOptions([relationOption])
-                    setSelectedItem(relationOption.value)
+                })
+
+                // Get ids from response data
+                const rowArr = response.data.data
+                const ids = rowArr.map(row => row.id)
+
+                if (ids) {
+                    const relationOptions = ids.map(id => ({
+                        value: id.toString(),
+                        label: `ID: ${id}`
+                    }))
+
+                    setOptions(relationOptions)
+
+                    // Set selected option
+                    const selection = colDef.cellRendererParams?.colRelations?.[data.id]
+                    setSelectedItem(selection[0].id.toString())
                 }
             }
             catch (error) {
