@@ -157,8 +157,8 @@ export default function AgGridUI({ url, onButtonClick }) {
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             {editingRowId && (
                 <EditActions 
-                    onSave={handleSaveChanges}
-                    onCancel={() => handleCancelEdit(rowData, setRowData)}
+                    onSave={() => handleSaveChanges(colDefs, setColDefs)}
+                    onCancel={() => handleCancelEdit(rowData, setRowData, colDefs, setColDefs)}
                 />
             )}
             <div style={{ flex: 1 }}>
