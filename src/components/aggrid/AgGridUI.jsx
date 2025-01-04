@@ -3,7 +3,7 @@ import { AgGridReact } from 'ag-grid-react'
 import { notifications } from '@mantine/notifications'
 import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
-import RelationCellRead from './custom-cells/RelationCellRead'
+import CellRelationRead from './custom-cells/CellRelationRead'
 import { constructFilteredUrl, getRelationalValue, isRelationalField } from './utils'
 import EditConfirmationModal from './modals/EditConfirmationModal'
 import EditActions from './EditActions'
@@ -13,7 +13,7 @@ import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
 export default function AgGridUI({ url, onButtonClick }) {
     const { user } = useAuth()
     const [rowData, setRowData] = useState([]) // [{ greet: "Hello, world!" }]
-    const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: RelationCellRead }]
+    const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: CellRelationRead }]
     const {
         editingRowId,
         showEditModal,
@@ -110,7 +110,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                             return {
                                 field: key,
                                 filter: true,
-                                cellRenderer: RelationCellRead,
+                                cellRenderer: CellRelationRead,
                                 cellRendererParams: {
                                     colRelations: allRelations[key],
                                     onButtonClick

@@ -4,7 +4,7 @@ import RelationListModal from '../modals/RelationListModal'
 import { constructFilteredUrl } from '../utils'
 
 
-export default function RelationCellRead(props) {
+export default function CellRelationRead(props) {
     const { value, data, colDef } = props
     const [isModalOpen, setIsModalOpen] = useState(false)
 
