@@ -111,6 +111,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 field: key,
                                 filter: true,
                                 cellRenderer: CellRelationRead,
+                                autoHeight: true,
                                 cellRendererParams: {
                                     colRelations: allRelations[key],
                                     onButtonClick
