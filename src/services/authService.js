@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { API_BASE_URL } from '../config/config.js'
-import pluralize from 'pluralize'
+import { constructUrl } from '../components/aggrid/utils.js'
 
 export const loginUser = async (credentials) => {
     try {
@@ -29,7 +29,8 @@ export const getContentTypes = async (token) => {
                 result.push({
                     singularName: ctype.schema.singularName,
                     pluralName: ctype.schema.pluralName,
-                    displayName: ctype.schema.displayName
+                    displayName: ctype.schema.displayName,
+                    attributes: ctype.schema.attributes
                 })
             }
 
@@ -49,14 +50,15 @@ export const getApiUrls = async (token) => {
     const contentTypes = await getContentTypes(token)
 
     const apiUrls = contentTypes.map(cType => {
-        const { singularName, pluralName, displayName } = cType
+        const { singularName, pluralName, displayName, attributes } = cType
 
         return {
             route: `/data/${pluralName}`,
-            url: `${API_BASE_URL}/api/${pluralName}?populate=*`,
+            url: constructUrl(pluralName),
             singularName,
             pluralName,
-            displayName
+            displayName,
+            attributes
         }
     })
 

@@ -4,14 +4,16 @@ import { notifications } from '@mantine/notifications'
 import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
 import CellRelationRead from './custom-cells/CellRelationRead'
-import { constructFilteredUrl, getRelationalValue, isRelationalField } from './utils'
+import CellRelationWrite from './custom-cells/CellRelationWrite'
+import CellRelationWriteMultiple from './custom-cells/CellRelationWriteMultiple'
+import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, isRelationalField } from './utils'
 import EditConfirmationModal from './modals/EditConfirmationModal'
 import EditActions from './EditActions'
 import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
-    const { user } = useAuth()
+    const { user, apiUrls } = useAuth()
     const [rowData, setRowData] = useState([]) // [{ greet: "Hello, world!" }]
     const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: CellRelationRead }]
     const {
@@ -38,6 +40,11 @@ export default function AgGridUI({ url, onButtonClick }) {
                 const rows = []
                 const allRelations = {}
 
+                // Get attributes (cols type)
+                const basePopulateUrl = getBasePopulateUrl(url)
+                const modelData = apiUrls.find(data => data.url === basePopulateUrl)
+                const attributes = modelData.attributes
+
                 // Set rows data
                 // Loop each value of the array
                 for (const rowObj of rowArr) {
@@ -46,8 +53,15 @@ export default function AgGridUI({ url, onButtonClick }) {
                     // Loops each key (column name) of the dictionary
                     for (const key in rowObj) {
                         if (isRelationalField(key, rowObj[key])) {
+                            // Get correct model pluralName
+                            const target = attributes[key]?.target
+                            const modelName = target.split(".").pop()
+                            const modelData = apiUrls.find(data => data.singularName === modelName)
+                            const pluralName = modelData.pluralName
+
                             if (!allRelations[key]) {
                                 allRelations[key] = {}
+                                allRelations[key]["modelUrl"] = constructUrl(pluralName)
                             }
 
                             const relation = rowObj[key]
@@ -60,7 +74,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 allRelations[key][rowObj.id] = relation.map(rl => {
                                     return {
                                         id: rl.id,
-                                        url: constructFilteredUrl(key, rowObj[key]) || ""
+                                        url: constructFilteredUrl(pluralName, rowObj[key]) || ""
                                     }
                                 })
 
@@ -76,7 +90,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 // Put this in a list, to keep things consistent
                                 allRelations[key][rowObj.id] = [{
                                     "id": relation.id,
-                                    "url": constructFilteredUrl(key, rowObj[key]) || ""
+                                    "url": constructFilteredUrl(pluralName, rowObj[key]) || ""
                                 }]
 
                                 // Set cell display value (make it array)

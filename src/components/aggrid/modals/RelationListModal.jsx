@@ -19,7 +19,7 @@ export default function RelationListModal({ isOpen, onClose, items, fieldName, o
                             onClose()
                         }}
                     >
-                        {item.attributes?.name || `Item ${item.id || index + 1}`}
+                        {item.attributes?.name || `ID: ${item.id || index + 1}`}
                     </Button>
                 ))}
             </Stack>

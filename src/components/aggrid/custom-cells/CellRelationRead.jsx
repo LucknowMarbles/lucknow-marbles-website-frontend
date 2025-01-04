@@ -1,7 +1,6 @@
 import { Button } from '@mantine/core'
 import React, { useState } from 'react'
 import RelationListModal from '../modals/RelationListModal'
-import { constructFilteredUrl } from '../utils'
 
 
 export default function CellRelationRead(props) {
@@ -17,8 +16,7 @@ export default function CellRelationRead(props) {
     }
 
     const handleItemSelect = (item) => {
-        const url = constructFilteredUrl(colDef.field, [item])
-        props.onButtonClick?.(url)
+        props.onButtonClick?.(item.url)
     }
 
     return (
