@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 export function useGridEdit() {
     const [editingRowId, setEditingRowId] = useState(null)
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedRow, setSelectedRow] = useState(null)
     const [isSaving, setIsSaving] = useState(false)
+    const gridApiRef = useRef(null)
 
     function resetState() {
         setShowEditModal(false)
@@ -16,6 +17,9 @@ export function useGridEdit() {
         if (!editingRowId && !showEditModal) {
             setSelectedRow(params.node.data)
             setShowEditModal(true)
+            
+            // Store grid API reference
+            gridApiRef.current = params.api
         }
     }
 
@@ -27,7 +31,36 @@ export function useGridEdit() {
     async function handleSaveChanges() {
         setIsSaving(true)
 
+        // Get the updated row data using AG Grid's API
         try {
+            const rowNodes = []
+            
+            // Collect all row nodes
+            gridApiRef.current.forEachNode(node => rowNodes.push(node))
+            
+            // Find the target row node
+            const targetNode = rowNodes.find(node => node.data.id === editingRowId)
+            
+            // Get updatedData
+            let updatedData = null
+
+            if (targetNode) {
+                updatedData = { ...targetNode.data }
+
+                // Get relational cells value
+                const columns = gridApiRef.current.getAllGridColumns()
+
+                columns.forEach(column => {
+                    const colDef = column.getColDef()
+                    const field = column.getColId()
+
+                    if (colDef.cellRendererSelector) {
+                        const relations = colDef.cellRendererParams?.colRelations || {}
+                        updatedData[field] = relations[targetNode.data.id]?.map(r => r.id) || []
+                    }
+                })
+            }
+
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 2000))
             resetState()

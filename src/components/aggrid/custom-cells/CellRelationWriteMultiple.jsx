@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { MultiSelect, Loader } from '@mantine/core'
 import axios from 'axios'
 import { useAuth } from '../../../contexts/AuthContext'
+import { constructFilteredUrl } from '../utils'
 
 export default function CellRelationWriteMultiple(props) {
     const { user } = useAuth()
@@ -59,6 +60,13 @@ export default function CellRelationWriteMultiple(props) {
 
     function handleChange(newValues) {
         setSelectedItems(newValues)
+
+        if (colDef.cellRendererParams?.colRelations) {
+            colDef.cellRendererParams.colRelations[data.id] = newValues.map(value => ({
+                id: parseInt(value),
+                url: constructFilteredUrl(colDef.cellRendererParams.colRelations.modelPluralName, value)
+            }))
+        }
     }
 
     return (

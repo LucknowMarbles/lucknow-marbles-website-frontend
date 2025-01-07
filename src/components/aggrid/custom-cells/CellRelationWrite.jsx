@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Select, Loader } from '@mantine/core'
 import { useAuth } from '../../../contexts/AuthContext'
 import axios from 'axios'
+import { constructFilteredUrl } from '../utils'
 
 export default function CellRelationWrite(props) {
     const { user } = useAuth()
@@ -59,6 +60,13 @@ export default function CellRelationWrite(props) {
 
     function handleChange(newValue) {
         setSelectedItem(newValue)
+
+        if (colDef.cellRendererParams?.colRelations) {
+            colDef.cellRendererParams.colRelations[data.id] = newValue ? [{
+                id: parseInt(newValue),
+                url: constructFilteredUrl(colDef.cellRendererParams.colRelations.modelPluralName, newValue)
+            }] : []
+        }
     }
 
     return (

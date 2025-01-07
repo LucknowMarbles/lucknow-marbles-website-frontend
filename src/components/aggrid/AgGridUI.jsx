@@ -64,6 +64,7 @@ export default function AgGridUI({ url, onButtonClick }) {
 
                             if (!allRelations[key]) {
                                 allRelations[key] = {}
+                                allRelations[key]["modelPluralName"] = pluralName
                                 allRelations[key]["modelUrl"] = constructUrl(pluralName)
                             }
 
