@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import { notifications } from '@mantine/notifications'
+import { LoadingOverlay } from '@mantine/core'
 import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
 import CellRelationRead from './custom-cells/CellRelationRead'
@@ -19,6 +20,7 @@ export default function AgGridUI({ url, onButtonClick }) {
     const {
         editingRowId,
         showEditModal,
+        isSaving,
         handleOnCellDoubleClicked,
         handleEditConfirm,
         handleSaveChanges,
@@ -175,11 +177,18 @@ export default function AgGridUI({ url, onButtonClick }) {
     }, [url, onButtonClick, editingRowId])
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+            <LoadingOverlay 
+                visible={isSaving} 
+                zIndex={1000}
+                overlayProps={{ radius: "sm", blur: 2 }}
+                loaderProps={{ color: 'blue', type: 'bars' }}
+            />
             {editingRowId && (
                 <EditActions 
                     onSave={() => handleSaveChanges()}
                     onCancel={() => handleCancelEdit()}
+                    disabled={isSaving}
                 />
             )}
             <div style={{ flex: 1 }}>

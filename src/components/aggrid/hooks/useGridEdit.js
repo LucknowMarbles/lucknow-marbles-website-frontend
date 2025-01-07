@@ -4,6 +4,7 @@ export function useGridEdit() {
     const [editingRowId, setEditingRowId] = useState(null)
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedRow, setSelectedRow] = useState(null)
+    const [isSaving, setIsSaving] = useState(false)
 
     function resetState() {
         setShowEditModal(false)
@@ -23,8 +24,17 @@ export function useGridEdit() {
         setEditingRowId(selectedRow.id)
     }
 
-    function handleSaveChanges() {
-        resetState()
+    async function handleSaveChanges() {
+        setIsSaving(true)
+
+        try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            resetState()
+        }
+        finally {
+            setIsSaving(false)
+        }
     }
 
     function handleCancelEdit() {
@@ -34,6 +44,7 @@ export function useGridEdit() {
     return {
         editingRowId,
         showEditModal,
+        isSaving,
         handleOnCellDoubleClicked,
         handleEditConfirm,
         handleSaveChanges,
