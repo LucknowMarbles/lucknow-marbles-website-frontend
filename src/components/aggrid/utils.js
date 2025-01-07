@@ -6,12 +6,8 @@ export function constructUrl(pluralName) {
 }
 
 
-export function constructFilteredUrl(modelName, data) {
+export function constructFilteredUrl(modelName, id) {
     const baseUrl = `${API_BASE_URL}/api/${modelName}`
-    
-    const id = Array.isArray(data) && data.length > 0 ? data[0].id : data?.id
-    if (!id) return null
-    
     return `${baseUrl}?populate=*&filters[id][$eq]=${id}`
 }
 

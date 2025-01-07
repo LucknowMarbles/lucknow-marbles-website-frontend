@@ -77,7 +77,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 allRelations[key][rowObj.id] = relation.map(rl => {
                                     return {
                                         id: rl.id,
-                                        url: constructFilteredUrl(pluralName, rowObj[key]) || ""
+                                        url: constructFilteredUrl(pluralName, rl.id) || ""
                                     }
                                 })
 
@@ -92,8 +92,8 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 // Structured as [column][row]
                                 // Put this in a list, to keep things consistent
                                 allRelations[key][rowObj.id] = [{
-                                    "id": relation.id,
-                                    "url": constructFilteredUrl(pluralName, rowObj[key]) || ""
+                                    id: relation.id,
+                                    url: constructFilteredUrl(pluralName, relation.id) || ""
                                 }]
 
                                 // Set cell display value (make it array)
