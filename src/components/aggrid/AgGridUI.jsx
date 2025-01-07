@@ -19,7 +19,6 @@ export default function AgGridUI({ url, onButtonClick }) {
     const {
         editingRowId,
         showEditModal,
-        selectedRow,
         handleOnCellDoubleClicked,
         handleEditConfirm,
         handleSaveChanges,
@@ -133,16 +132,29 @@ export default function AgGridUI({ url, onButtonClick }) {
                             return {
                                 field: key,
                                 filter: true,
-                                cellRenderer: CellRelationRead,
-                                autoHeight: true,
+                                cellRendererSelector: params => {
+                                    const cellRenderer = params.colDef.cellRendererParams.colRelations.cellRenderer
+
+                                    if (params.data.id === editingRowId) {
+                                        return {
+                                            component: cellRenderer
+                                        }
+                                    }
+                                    else {
+                                        return {
+                                            component: CellRelationRead
+                                        }
+                                    }
+                                },
                                 cellRendererParams: {
                                     colRelations: allRelations[key],
                                     onButtonClick
-                                }
+                                },
+                                autoHeight: true
                             }
                         }
 
-                        return { field: key, filter: true, editable: false }
+                        return { field: key, filter: true, editable: params => params.data.id === editingRowId }
                     })
                 }
 
@@ -160,14 +172,14 @@ export default function AgGridUI({ url, onButtonClick }) {
 
         fetchData()
 
-    }, [url, onButtonClick])
+    }, [url, onButtonClick, editingRowId])
 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             {editingRowId && (
                 <EditActions 
-                    onSave={() => handleSaveChanges(colDefs, setColDefs)}
-                    onCancel={() => handleCancelEdit(rowData, setRowData, colDefs, setColDefs)}
+                    onSave={() => handleSaveChanges()}
+                    onCancel={() => handleCancelEdit()}
                 />
             )}
             <div style={{ flex: 1 }}>
@@ -182,7 +194,7 @@ export default function AgGridUI({ url, onButtonClick }) {
             <EditConfirmationModal 
                 isOpen={showEditModal}
                 onClose={() => setShowEditModal(false)}
-                onConfirm={() => setColDefs(handleEditConfirm(colDefs, selectedRow))}
+                onConfirm={() => handleEditConfirm()}
             />
         </div>
     )
