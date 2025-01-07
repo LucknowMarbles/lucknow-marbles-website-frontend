@@ -29,26 +29,6 @@ export function getBasePopulateUrl(url) {
 }
 
 
-export function isRelationalField(fieldName, value) {
-    // Exclude Image field from being treated as a relation
-    if (fieldName === 'Image') {
-        return false
-    }
-
-    // Check for array of relations
-    if (Array.isArray(value)) {
-        return true
-    }
-    
-    // Check for relation object (will have id)
-    if (value && typeof value === 'object' && 'id' in value) {
-        return true
-    }
-
-    return false
-}
-
-
 export function getRelationalValue(key, value) {
     if (Array.isArray(value)) {
         return `View ${value.length} ${key.toUpperCase()}`

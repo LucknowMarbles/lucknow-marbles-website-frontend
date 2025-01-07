@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import CellRelationRead from './custom-cells/CellRelationRead'
 import CellRelationWrite from './custom-cells/CellRelationWrite'
 import CellRelationWriteMultiple from './custom-cells/CellRelationWriteMultiple'
-import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, isRelationalField } from './utils'
+import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue } from './utils'
 import EditConfirmationModal from './modals/EditConfirmationModal'
 import EditActions from './EditActions'
 import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
@@ -52,7 +52,9 @@ export default function AgGridUI({ url, onButtonClick }) {
 
                     // Loops each key (column name) of the dictionary
                     for (const key in rowObj) {
-                        if (isRelationalField(key, rowObj[key])) {
+                        const isRelation = key in attributes && attributes[key]?.type === "relation"
+
+                        if (isRelation && rowObj[key]) {
                             // Get correct model pluralName
                             const target = attributes[key]?.target
                             const modelName = target.split(".").pop()
@@ -65,8 +67,9 @@ export default function AgGridUI({ url, onButtonClick }) {
                             }
 
                             const relation = rowObj[key]
+                            const relationType = attributes[key].relation
 
-                            if (Array.isArray(relation)) {
+                            if (relationType === "oneToMany" || relationType === "manyToMany") {
                                 // Relations of type - One-to-Many or Many-to-Many
                                 // These will be a list of relations (objects). Even for a single object
                                 //
