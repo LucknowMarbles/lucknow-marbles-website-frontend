@@ -83,6 +83,9 @@ export default function AgGridUI({ url, onButtonClick }) {
 
                                 // Set cell display value
                                 row[key] = getRelationalValue(key, relation)
+
+                                // Add cellRenderer information (for edit mode)
+                                allRelations[key]["cellRenderer"] = CellRelationWriteMultiple
                             }
                             else
                             {
@@ -98,6 +101,9 @@ export default function AgGridUI({ url, onButtonClick }) {
 
                                 // Set cell display value (make it array)
                                 row[key] = getRelationalValue(key, [relation])
+
+                                // Add cellRenderer information (for edit mode)
+                                allRelations[key]["cellRenderer"] = CellRelationWrite
                             }
                         }
 

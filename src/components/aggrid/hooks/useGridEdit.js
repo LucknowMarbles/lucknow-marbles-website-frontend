@@ -48,7 +48,7 @@ export function useGridEdit() {
         
         return colDefs.map(col => ({
             ...col,
-            cellRenderer: col.cellRendererParams?.colRelations ? CellRelationWriteMultiple : col.cellRenderer,
+            cellRenderer: col.cellRendererParams?.colRelations ? col.cellRendererParams.colRelations.cellRenderer : col.cellRenderer,
             editable: (params) => {
                 return params.data.id === selectedRow.id && 
                        !Object.keys(col.cellRendererParams || {}).includes('colRelations')
