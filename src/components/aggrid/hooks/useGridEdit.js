@@ -1,6 +1,11 @@
+import axios from 'axios'
 import { useState, useRef } from 'react'
+import { useAuth } from '../../../contexts/AuthContext'
+import { API_BASE_URL } from '../../../config/config'
+import { notifications } from '@mantine/notifications'
 
 export function useGridEdit() {
+    const { user } = useAuth()
     const [editingRowId, setEditingRowId] = useState(null)
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedRow, setSelectedRow] = useState(null)
@@ -28,7 +33,7 @@ export function useGridEdit() {
         setEditingRowId(selectedRow.id)
     }
 
-    async function handleSaveChanges() {
+    async function handleSaveChanges(mainPluralName) {
         setIsSaving(true)
 
         // Get the updated row data using AG Grid's API
@@ -40,30 +45,64 @@ export function useGridEdit() {
             
             // Find the target row node
             const targetNode = rowNodes.find(node => node.data.id === editingRowId)
-            
-            // Get updatedData
-            let updatedData = null
 
-            if (targetNode) {
-                updatedData = { ...targetNode.data }
-
-                // Get relational cells value
-                const columns = gridApiRef.current.getAllGridColumns()
-
-                columns.forEach(column => {
-                    const colDef = column.getColDef()
-                    const field = column.getColId()
-
-                    if (colDef.cellRendererSelector) {
-                        const relations = colDef.cellRendererParams?.colRelations || {}
-                        updatedData[field] = relations[targetNode.data.id]?.map(r => r.id) || []
-                    }
-                })
+            // Check if targetNode exists (it should exist, otherwise there's some problem)
+            if (!targetNode) {
+                throw new Error("Could not find the row being edited")
             }
+            
+            // Get updatedData, and omit fields that are not to be updated, and assign remaining data to updatedData
+            const {
+                id,
+                createdAt,
+                updatedAt,
+                publishedAt,
+                documentId,
+                ...cleanedData
+            
+            } = targetNode.data
 
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            const updatedData = { ...cleanedData }
+
+            // Get relational cells value
+            const columns = gridApiRef.current.getAllGridColumns()
+
+            columns.forEach(column => {
+                const colDef = column.getColDef()
+                const field = column.getColId()
+
+                if (colDef.cellRendererSelector) {
+                    const relations = colDef.cellRendererParams?.colRelations || {}
+                    updatedData[field] = relations[targetNode.data.id]?.map(r => r.id) || []
+                }
+            })
+
+            // Make PUT request to backend
+            await axios.put(
+                `${API_BASE_URL}/api/${mainPluralName}/${documentId}`,
+                { data: updatedData },
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`
+                    }
+                }
+            )
+
+            notifications.show({
+                title: "Success",
+                message: "Data updated successfully!",
+                color: "green"
+            })
+
             resetState()
+        }
+        catch (error) {
+            console.error("Error updating data:", error)
+            notifications.show({
+                title: "Error",
+                message: error.response?.data?.message || error.message || "Failed to update data",
+                color: "red"
+            })
         }
         finally {
             setIsSaving(false)

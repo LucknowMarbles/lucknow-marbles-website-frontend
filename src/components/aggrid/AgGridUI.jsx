@@ -15,6 +15,7 @@ import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
 
 export default function AgGridUI({ url, onButtonClick }) {
     const { user, apiUrls } = useAuth()
+    const [mainPluralName, setMainPluralName] = useState("")
     const [rowData, setRowData] = useState([]) // [{ greet: "Hello, world!" }]
     const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: CellRelationRead }]
     const {
@@ -45,6 +46,9 @@ export default function AgGridUI({ url, onButtonClick }) {
                 const basePopulateUrl = getBasePopulateUrl(url)
                 const modelData = apiUrls.find(data => data.url === basePopulateUrl)
                 const attributes = modelData.attributes
+
+                // To be used for creating URL that are endpoints to update data
+                setMainPluralName(modelData.pluralName)
 
                 // Set rows data
                 // Loop each value of the array
@@ -187,7 +191,7 @@ export default function AgGridUI({ url, onButtonClick }) {
             />
             {editingRowId && (
                 <EditActions 
-                    onSave={() => handleSaveChanges()}
+                    onSave={() => handleSaveChanges(mainPluralName)}
                     onCancel={() => handleCancelEdit()}
                     disabled={isSaving}
                 />
