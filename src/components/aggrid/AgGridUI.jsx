@@ -161,7 +161,12 @@ export default function AgGridUI({ url, onButtonClick }) {
                             }
                         }
 
-                        return { field: key, filter: true, editable: params => params.data.id === editingRowId }
+                        return {
+                            field: key,
+                            filter: true,
+                            editable: params => params.data.id === editingRowId,
+                            ...(key === "createdAt" && { sort: "desc" })
+                        }
                     })
                 }
 
