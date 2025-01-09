@@ -32,3 +32,11 @@ export function getRelationalValue(key, value) {
 
     return null
 }
+
+
+export function getAttributeType(key, attributes) {
+    if (key in attributes)
+        return attributes[key].type
+
+    return null
+}

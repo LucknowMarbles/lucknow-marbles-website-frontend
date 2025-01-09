@@ -7,10 +7,12 @@ import { useAuth } from '../../contexts/AuthContext'
 import CellRelationRead from './custom-cells/CellRelationRead'
 import CellRelationWrite from './custom-cells/CellRelationWrite'
 import CellRelationWriteMultiple from './custom-cells/CellRelationWriteMultiple'
-import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue } from './utils'
+import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, getAttributeType } from './utils'
 import EditConfirmationModal from './modals/EditConfirmationModal'
 import EditActions from './EditActions'
 import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
+import CellEnumerationWrite from './custom-cells/CellEnumerationWrite'
+import CellEnumerationRead from './custom-cells/CellEnumerationRead'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
@@ -41,6 +43,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                 const rowArr = data.data
                 const rows = []
                 const allRelations = {}
+                const allEnumerations = {}
 
                 // Get attributes (cols type)
                 const basePopulateUrl = getBasePopulateUrl(url)
@@ -57,9 +60,9 @@ export default function AgGridUI({ url, onButtonClick }) {
 
                     // Loops each key (column name) of the dictionary
                     for (const key in rowObj) {
-                        const isRelation = key in attributes && attributes[key]?.type === "relation"
+                        const attributeType = getAttributeType(key, attributes)
 
-                        if (isRelation && rowObj[key]) {
+                        if (attributeType === "relation" && rowObj[key]) {
                             // Get correct model pluralName
                             const target = attributes[key]?.target
                             const modelName = target.split(".").pop()
@@ -113,6 +116,25 @@ export default function AgGridUI({ url, onButtonClick }) {
                             }
                         }
 
+                        else if (attributeType === "enumeration" && rowObj[key]) {
+                            const enumValues = attributes[key].enum
+                            
+                            if (!allEnumerations[key]) {
+                                allEnumerations[key] = {}
+                            }
+
+                            allEnumerations[key][rowObj.id] = {
+                                "all": enumValues,
+                                "selected": rowObj[key]
+                            }
+
+                            // Set cell display value
+                            row[key] = rowObj[key]
+
+                            // Add cellRenderer information (for edit mode)
+                            allEnumerations[key]["cellRenderer"] = CellEnumerationWrite
+                        }
+
                         else if (key === "Image" && Array.isArray(rowObj[key])) {
                             row[key] = rowObj[key][0]?.url || null // Display image url if found
                         }
@@ -120,7 +142,6 @@ export default function AgGridUI({ url, onButtonClick }) {
                         else {
                             row[key] = rowObj[key] // Simple string
                         }
-
                     }
 
                     rows.push(row)
@@ -156,6 +177,31 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererParams: {
                                     colRelations: allRelations[key],
                                     onButtonClick
+                                },
+                                autoHeight: true
+                            }
+                        }
+
+                        if (allEnumerations.hasOwnProperty(key)) {
+                            return {
+                                field: key,
+                                filter: true,
+                                cellRendererSelector: params => {
+                                    const cellRenderer = params.colDef.cellRendererParams.colEnumerations.cellRenderer
+
+                                    if (params.data.id === editingRowId) {
+                                        return {
+                                            component: cellRenderer
+                                        }
+                                    }
+                                    else {
+                                        return {
+                                            component: CellEnumerationRead
+                                        }
+                                    }
+                                },
+                                cellRendererParams: {
+                                    colEnumerations: allEnumerations[key]
                                 },
                                 autoHeight: true
                             }

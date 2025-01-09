@@ -64,16 +64,25 @@ export function useGridEdit() {
 
             const updatedData = { ...cleanedData }
 
-            // Get relational cells value
+            // Get custom cells value
             const columns = gridApiRef.current.getAllGridColumns()
 
             columns.forEach(column => {
                 const colDef = column.getColDef()
                 const field = column.getColId()
 
-                if (colDef.cellRendererSelector) {
-                    const relations = colDef.cellRendererParams?.colRelations || {}
-                    updatedData[field] = relations[targetNode.data.id]?.map(r => r.id) || []
+                if (colDef.cellRendererSelector && colDef.cellRendererParams) {
+                    // Relations
+                    if ("colRelations" in colDef.cellRendererParams) {
+                        const relations = colDef.cellRendererParams.colRelations || {}
+                        updatedData[field] = relations[targetNode.data.id]?.map(r => r.id) || []
+                    }
+
+                    // Enumerations
+                    if ("colEnumerations" in colDef.cellRendererParams) {
+                        const enumerations = colDef.cellRendererParams.colEnumerations || {}
+                        updatedData[field] = enumerations[targetNode.data.id]?.selected
+                    }
                 }
             })
 
