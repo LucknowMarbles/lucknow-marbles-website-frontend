@@ -1,22 +1,68 @@
 import { API_BASE_URL } from '../../config/config'
 
 
+export function normalizeData(data) {
+    if (!data?.data) {
+        throw new Error("Invalid data structure: missing data property")
+    }
+
+    // Helper to validate object structure
+    function isValidDocument(obj) {
+        return obj && typeof obj === "object" && "documentId" in obj
+    }
+
+    let rowArr
+    const rawData = data.data
+
+    // Handle array vs single object
+    if (Array.isArray(rawData)) {
+        if (!rawData.every(isValidDocument)) {
+            throw new Error("Invalid data structure: array contains invalid documents")
+        }
+
+        rowArr = rawData
+    }
+    else if (isValidDocument(rawData)) {
+        rowArr = [rawData]
+    }
+    else {
+        throw new Error("Invalid data structure: expected an array of documents or a single document")
+    }
+
+    return rowArr
+}
+
+
 export function constructUrl(pluralName) {
     return `${API_BASE_URL}/api/${pluralName}?populate=*`
 }
 
 
-export function constructFilteredUrl(modelName, id) {
+export function constructFilteredUrl(modelName, documentId) {
     const baseUrl = `${API_BASE_URL}/api/${modelName}`
-    return `${baseUrl}?populate=*&filters[id][$eq]=${id}`
+    return `${baseUrl}/${documentId}?populate=*`
 }
 
 
 export function getBasePopulateUrl(url) {
     try {
         const urlObj = new URL(url)
+
+        // /api/transfers/w0oi6ry85c9q4vblmgf6cuiv => ["", "api", "transfers", "w0oi6ry85c9q4vblmgf6cuiv"]
+        const pathSegments = urlObj.pathname.split("/")
+
+        if (pathSegments.length === 4) {
+            pathSegments.pop()
+        }
+
+        const updatedPathname = pathSegments.join("/")
+
+        // populate=* => *
         const populate = urlObj.searchParams.get('populate')
-        return populate ? `${urlObj.origin}${urlObj.pathname}?populate=${populate}` : `${urlObj.origin}${urlObj.pathname}`
+
+        return populate ?
+            `${urlObj.origin}${updatedPathname}?populate=${populate}` :
+            `${urlObj.origin}${updatedPathname}`
     }
     catch(error) {
         console.log("Invalid URL:", error)

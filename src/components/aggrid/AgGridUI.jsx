@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import CellRelationRead from './custom-cells/CellRelationRead'
 import CellRelationWrite from './custom-cells/CellRelationWrite'
 import CellRelationWriteMultiple from './custom-cells/CellRelationWriteMultiple'
-import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, getAttributeType } from './utils'
+import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, getAttributeType, normalizeData } from './utils'
 import EditConfirmationModal from './modals/EditConfirmationModal'
 import EditActions from './EditActions'
 import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
@@ -42,7 +42,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                     }
                 })
 
-                const rowArr = data.data
+                const rowArr = normalizeData(data)
                 const rows = []
                 const allRelations = {}
                 const allEnumerations = {}
@@ -89,7 +89,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 allRelations[key][rowObj.id] = relation.map(rl => {
                                     return {
                                         id: rl.id,
-                                        url: constructFilteredUrl(pluralName, rl.id) || ""
+                                        url: constructFilteredUrl(pluralName, rl.documentId) || ""
                                     }
                                 })
 
@@ -108,7 +108,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 // Put this in a list, to keep things consistent
                                 allRelations[key][rowObj.id] = [{
                                     id: relation.id,
-                                    url: constructFilteredUrl(pluralName, relation.id) || ""
+                                    url: constructFilteredUrl(pluralName, relation.documentId) || ""
                                 }]
 
                                 // Set cell display value (make it array)
