@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import CellRelationRead from './custom-cells/CellRelationRead'
 import CellRelationWrite from './custom-cells/CellRelationWrite'
 import CellRelationWriteMultiple from './custom-cells/CellRelationWriteMultiple'
-import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, getAttributeType, normalizeData, isReservedColumn } from './utils'
+import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, getAttributeType, normalizeData, isReservedColumn, isReservedAndDatetimeColumn } from './utils'
 import EditConfirmationModal from './modals/EditConfirmationModal'
 import EditActions from './EditActions'
 import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
@@ -180,6 +180,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 field: key,
                                 filter: true,
                                 editable: false,
+                                cellRenderer: isReservedAndDatetimeColumn(key) && CellDateRead,
                                 ...(key === "createdAt" && { sort: "desc" })
                             }
                         }

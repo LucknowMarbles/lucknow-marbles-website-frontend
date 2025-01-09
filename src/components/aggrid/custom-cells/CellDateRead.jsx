@@ -13,9 +13,9 @@ export default function CellDateRead(props) {
 
     return (
         <Badge 
-            variant="dot"
+            variant="transparent"
             size="lg"
-            color="gray"
+            color="black"
             styles={{
                 root: {
                     textTransform: 'none',

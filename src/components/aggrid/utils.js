@@ -92,3 +92,10 @@ export function isReservedColumn(colName) {
     const reservedColNames = ["id", "documentId", "publishedAt", "createdAt", "updatedAt"]
     return reservedColNames.includes(colName)
 }
+
+
+// Have to do this manually, because schema attributes don't contain information for these columns
+export function isReservedAndDatetimeColumn(colName) {
+    const reservedAndDatetimeColNames = ["publishedAt", "createdAt", "updatedAt"]
+    return reservedAndDatetimeColNames.includes(colName)
+}
