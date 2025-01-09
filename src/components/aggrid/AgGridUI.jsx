@@ -13,6 +13,8 @@ import EditActions from './EditActions'
 import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
 import CellEnumerationWrite from './custom-cells/CellEnumerationWrite'
 import CellEnumerationRead from './custom-cells/CellEnumerationRead'
+import CellDateRead from './custom-cells/CellDateRead'
+import CellDateWrite from './custom-cells/CellDateWrite'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
@@ -44,6 +46,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                 const rows = []
                 const allRelations = {}
                 const allEnumerations = {}
+                const allDates = {}
 
                 // Get attributes (cols type)
                 const basePopulateUrl = getBasePopulateUrl(url)
@@ -135,6 +138,22 @@ export default function AgGridUI({ url, onButtonClick }) {
                             allEnumerations[key]["cellRenderer"] = CellEnumerationWrite
                         }
 
+                        else if (attributeType === "datetime" && rowObj[key]) {
+                            if (!allDates[key]) {
+                                allDates[key] = {}
+                            }
+
+                            allDates[key][rowObj.id] = {
+                                "date": rowObj[key]
+                            }
+
+                            // Set cell display value
+                            row[key] = rowObj[key]
+
+                            // Add cellRenderer information (for edit mode)
+                            allDates[key]["cellRenderer"] = CellDateWrite
+                        }
+
                         else if (key === "Image" && Array.isArray(rowObj[key])) {
                             row[key] = rowObj[key][0]?.url || null // Display image url if found
                         }
@@ -202,6 +221,31 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 },
                                 cellRendererParams: {
                                     colEnumerations: allEnumerations[key]
+                                },
+                                autoHeight: true
+                            }
+                        }
+
+                        if (allDates.hasOwnProperty(key)) {
+                            return {
+                                field: key,
+                                filter: true,
+                                cellRendererSelector: params => {
+                                    const cellRenderer = params.colDef.cellRendererParams.colDate.cellRenderer
+
+                                    if (params.data.id === editingRowId) {
+                                        return {
+                                            component: cellRenderer
+                                        }
+                                    }
+                                    else {
+                                        return {
+                                            component: CellDateRead
+                                        }
+                                    }
+                                },
+                                cellRendererParams: {
+                                    colDate: allDates[key]
                                 },
                                 autoHeight: true
                             }

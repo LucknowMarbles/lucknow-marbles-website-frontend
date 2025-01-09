@@ -83,6 +83,12 @@ export function useGridEdit() {
                         const enumerations = colDef.cellRendererParams.colEnumerations || {}
                         updatedData[field] = enumerations[targetNode.data.id]?.selected
                     }
+
+                    // Dates
+                    if ("colDate" in colDef.cellRendererParams) {
+                        const dateData = colDef.cellRendererParams.colDate || {}
+                        updatedData[field] = dateData[targetNode.data.id]?.date
+                    }
                 }
             })
 
