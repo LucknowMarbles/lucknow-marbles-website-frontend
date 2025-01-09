@@ -305,6 +305,9 @@ export default function AgGridUI({ url, onButtonClick }) {
                     rowData={rowData}
                     columnDefs={colDefs}
                     domLayout="normal"
+                    rowSelection={{
+                        mode: "multiRow"
+                    }}
                     onCellDoubleClicked={handleOnCellDoubleClicked}
                     getRowStyle={getEditRowStyle(editingRowId)}
                 />
