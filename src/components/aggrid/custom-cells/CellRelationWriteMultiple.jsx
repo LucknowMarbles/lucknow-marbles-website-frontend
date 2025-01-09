@@ -76,7 +76,6 @@ export default function CellRelationWriteMultiple(props) {
             onChange={handleChange}
             placeholder="Select items..."
             searchable
-            clearable
             rightSection={isLoading ? <Loader size="xs" /> : null}
             disabled={isLoading}
             styles={{

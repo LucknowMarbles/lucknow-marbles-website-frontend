@@ -47,6 +47,7 @@ export default function CellEnumerationWrite(props) {
             onChange={handleChange}
             placeholder="Select an option..."
             searchable
+            allowDeselect={false}
             styles={{
                 root: {
                     width: "100%",

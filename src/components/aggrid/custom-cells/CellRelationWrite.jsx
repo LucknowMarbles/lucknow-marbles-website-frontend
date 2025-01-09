@@ -76,7 +76,7 @@ export default function CellRelationWrite(props) {
             onChange={handleChange}
             placeholder="Select an item..."
             searchable
-            clearable
+            allowDeselect={false}
             rightSection={isLoading ? <Loader size="xs" /> : null}
             disabled={isLoading}
             styles={{

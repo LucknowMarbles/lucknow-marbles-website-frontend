@@ -32,7 +32,6 @@ export default function CellDateWrite(props) {
             withSeconds
             value={selectedDate}
             onChange={handleDateChange}
-            clearable
             styles={{
                 root: {
                     width: '100%',
