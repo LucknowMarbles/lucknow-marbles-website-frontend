@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import CellRelationRead from './custom-cells/CellRelationRead'
 import CellRelationWrite from './custom-cells/CellRelationWrite'
 import CellRelationWriteMultiple from './custom-cells/CellRelationWriteMultiple'
-import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, getAttributeType, normalizeData } from './utils'
+import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, getAttributeType, normalizeData, isReservedColumn } from './utils'
 import EditConfirmationModal from './modals/EditConfirmationModal'
 import EditActions from './EditActions'
 import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
@@ -175,6 +175,15 @@ export default function AgGridUI({ url, onButtonClick }) {
                     const keys = Object.keys(rowArr[0])
 
                     cols = keys.map(key => {
+                        if (isReservedColumn(key)) {
+                            return {
+                                field: key,
+                                filter: true,
+                                editable: false,
+                                ...(key === "createdAt" && { sort: "desc" })
+                            }
+                        }
+
                         if (allRelations.hasOwnProperty(key)) {
                             return {
                                 field: key,
@@ -254,8 +263,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                         return {
                             field: key,
                             filter: true,
-                            editable: params => params.data.id === editingRowId,
-                            ...(key === "createdAt" && { sort: "desc" })
+                            editable: params => params.data.id === editingRowId
                         }
                     })
                 }

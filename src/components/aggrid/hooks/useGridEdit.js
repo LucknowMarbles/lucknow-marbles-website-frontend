@@ -3,6 +3,7 @@ import { useState, useRef } from 'react'
 import { useAuth } from '../../../contexts/AuthContext'
 import { API_BASE_URL } from '../../../config/config'
 import { notifications } from '@mantine/notifications'
+import { isReservedColumn } from '../utils'
 
 export function useGridEdit() {
     const { user } = useAuth()
@@ -51,18 +52,16 @@ export function useGridEdit() {
                 throw new Error("Could not find the row being edited")
             }
             
-            // Get updatedData, and omit fields that are not to be updated, and assign remaining data to updatedData
-            const {
-                id,
-                createdAt,
-                updatedAt,
-                publishedAt,
-                documentId,
-                ...cleanedData
-            
-            } = targetNode.data
+            // Setup updatedData; omit fields that are not to be updated, and assign remaining data to updatedData
+            const updatedData = Object.keys(targetNode.data)
+                .reduce((acc, key) => {
+                    if (!isReservedColumn(key)) {
+                        acc[key] = targetNode.data[key]
+                    }
 
-            const updatedData = { ...cleanedData }
+                    return acc
+                
+                }, {})
 
             // Get custom cells value
             const columns = gridApiRef.current.getAllGridColumns()
@@ -94,7 +93,7 @@ export function useGridEdit() {
 
             // Make PUT request to backend
             await axios.put(
-                `${API_BASE_URL}/api/${mainPluralName}/${documentId}`,
+                `${API_BASE_URL}/api/${mainPluralName}/${targetNode.data.documentId}`,
                 { data: updatedData },
                 {
                     headers: {

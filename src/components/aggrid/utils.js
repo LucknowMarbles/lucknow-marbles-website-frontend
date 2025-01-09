@@ -86,3 +86,9 @@ export function getAttributeType(key, attributes) {
 
     return null
 }
+
+
+export function isReservedColumn(colName) {
+    const reservedColNames = ["id", "documentId", "publishedAt", "createdAt", "updatedAt"]
+    return reservedColNames.includes(colName)
+}
