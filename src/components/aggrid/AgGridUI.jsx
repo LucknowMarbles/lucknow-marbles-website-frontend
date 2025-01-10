@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import { notifications } from '@mantine/notifications'
 import { LoadingOverlay } from '@mantine/core'
@@ -9,12 +9,12 @@ import CellRelationWrite from './custom-cells/CellRelationWrite'
 import CellRelationWriteMultiple from './custom-cells/CellRelationWriteMultiple'
 import { constructUrl, constructFilteredUrl, getBasePopulateUrl, getRelationalValue, getAttributeType, normalizeData, isReservedColumn, isReservedAndDatetimeColumn } from './utils'
 import EditConfirmationModal from './modals/EditConfirmationModal'
-import EditActions from './EditActions'
 import { useGridEdit, getEditRowStyle } from './hooks/useGridEdit'
 import CellEnumerationWrite from './custom-cells/CellEnumerationWrite'
 import CellEnumerationRead from './custom-cells/CellEnumerationRead'
 import CellDateRead from './custom-cells/CellDateRead'
 import CellDateWrite from './custom-cells/CellDateWrite'
+import Toolbar from './Toolbar'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
@@ -22,11 +22,12 @@ export default function AgGridUI({ url, onButtonClick }) {
     const [mainPluralName, setMainPluralName] = useState("")
     const [rowData, setRowData] = useState([]) // [{ greet: "Hello, world!" }]
     const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: CellRelationRead }]
+    const [selectionData, setSelectionData] = useState({})
     const {
-        editingRowId,
+        editingRowIds,
         showEditModal,
         isSaving,
-        handleOnCellDoubleClicked,
+        handleEditInitiate,
         handleEditConfirm,
         handleSaveChanges,
         handleCancelEdit,
@@ -192,7 +193,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererSelector: params => {
                                     const cellRenderer = params.colDef.cellRendererParams.colRelations.cellRenderer
 
-                                    if (params.data.id === editingRowId) {
+                                    if (editingRowIds?.includes(params.data.id)) {
                                         return {
                                             component: cellRenderer
                                         }
@@ -218,7 +219,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererSelector: params => {
                                     const cellRenderer = params.colDef.cellRendererParams.colEnumerations.cellRenderer
 
-                                    if (params.data.id === editingRowId) {
+                                    if (editingRowIds?.includes(params.data.id)) {
                                         return {
                                             component: cellRenderer
                                         }
@@ -243,7 +244,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererSelector: params => {
                                     const cellRenderer = params.colDef.cellRendererParams.colDate.cellRenderer
 
-                                    if (params.data.id === editingRowId) {
+                                    if (editingRowIds?.includes(params.data.id)) {
                                         return {
                                             component: cellRenderer
                                         }
@@ -264,7 +265,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                         return {
                             field: key,
                             filter: true,
-                            editable: params => params.data.id === editingRowId
+                            editable: params => editingRowIds?.includes(params.data.id)
                         }
                     })
                 }
@@ -283,7 +284,17 @@ export default function AgGridUI({ url, onButtonClick }) {
 
         fetchData()
 
-    }, [url, onButtonClick, editingRowId])
+    }, [url, onButtonClick, editingRowIds])
+
+    const onSelectionChanged = useCallback((params) => {
+        const gridAPI = params.api
+        const selectedNodes = gridAPI.getSelectedNodes()
+
+        setSelectionData({
+            selectedRows: selectedNodes.map(node => node.data),
+            gridApi: gridAPI
+        })
+    }, [])
 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -293,23 +304,22 @@ export default function AgGridUI({ url, onButtonClick }) {
                 overlayProps={{ radius: "sm", blur: 2 }}
                 loaderProps={{ color: 'blue', type: 'bars' }}
             />
-            {editingRowId && (
-                <EditActions 
-                    onSave={() => handleSaveChanges(mainPluralName)}
-                    onCancel={() => handleCancelEdit()}
-                    disabled={isSaving}
-                />
-            )}
+            <Toolbar
+                selectionData={selectionData}
+                isEditing={editingRowIds !== null}
+                handleEdit={() => handleEditInitiate(selectionData)}
+                onSave={() => handleSaveChanges(mainPluralName)}
+                onCancel={handleCancelEdit}
+                disabled={isSaving}
+            />
             <div style={{ flex: 1 }}>
                 <AgGridReact
                     rowData={rowData}
                     columnDefs={colDefs}
                     domLayout="normal"
-                    rowSelection={{
-                        mode: "multiRow"
-                    }}
-                    onCellDoubleClicked={handleOnCellDoubleClicked}
-                    getRowStyle={getEditRowStyle(editingRowId)}
+                    rowSelection={editingRowIds === null ? { mode: "multiRow" } : false}
+                    getRowStyle={getEditRowStyle(editingRowIds)}
+                    onSelectionChanged={onSelectionChanged}
                 />
             </div>
             <EditConfirmationModal 

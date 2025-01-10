@@ -7,31 +7,33 @@ import { isReservedColumn } from '../utils'
 
 export function useGridEdit() {
     const { user } = useAuth()
-    const [editingRowId, setEditingRowId] = useState(null)
+    const [editingRowIds, setEditingRowIds] = useState(null)
     const [showEditModal, setShowEditModal] = useState(false)
-    const [selectedRow, setSelectedRow] = useState(null)
+    const [selectedRows, setSelectedRows] = useState(null)
     const [isSaving, setIsSaving] = useState(false)
     const gridApiRef = useRef(null)
 
     function resetState() {
         setShowEditModal(false)
-        setEditingRowId(null)
-        setSelectedRow(null)
+        setEditingRowIds(null)
+        setSelectedRows(null)
     }
 
-    function handleOnCellDoubleClicked(params) {
-        if (!editingRowId && !showEditModal) {
-            setSelectedRow(params.node.data)
+    function handleEditInitiate(selectionData) {
+        if (!editingRowIds && !showEditModal) {
+            setSelectedRows(selectionData.selectedRows)
             setShowEditModal(true)
             
             // Store grid API reference
-            gridApiRef.current = params.api
+            gridApiRef.current = selectionData.gridApi
         }
     }
 
     function handleEditConfirm() {
         setShowEditModal(false)
-        setEditingRowId(selectedRow.id)
+        
+        const ids = selectedRows.map(row => row.id)
+        setEditingRowIds(ids)
     }
 
     async function handleSaveChanges(mainPluralName) {
@@ -39,76 +41,78 @@ export function useGridEdit() {
 
         // Get the updated row data using AG Grid's API
         try {
-            const rowNodes = []
+            for (const editRowId of editingRowIds) {
+                const rowNodes = []
             
-            // Collect all row nodes
-            gridApiRef.current.forEachNode(node => rowNodes.push(node))
-            
-            // Find the target row node
-            const targetNode = rowNodes.find(node => node.data.id === editingRowId)
-
-            // Check if targetNode exists (it should exist, otherwise there's some problem)
-            if (!targetNode) {
-                throw new Error("Could not find the row being edited")
-            }
-            
-            // Setup updatedData; omit fields that are not to be updated, and assign remaining data to updatedData
-            const updatedData = Object.keys(targetNode.data)
-                .reduce((acc, key) => {
-                    if (!isReservedColumn(key)) {
-                        acc[key] = targetNode.data[key]
-                    }
-
-                    return acc
+                // Collect all row nodes
+                gridApiRef.current.forEachNode(node => rowNodes.push(node))
                 
-                }, {})
+                // Find the target row node
+                const targetNode = rowNodes.find(node => node.data.id === editRowId)
 
-            // Get custom cells value
-            const columns = gridApiRef.current.getAllGridColumns()
-
-            columns.forEach(column => {
-                const colDef = column.getColDef()
-                const field = column.getColId()
-
-                if (colDef.cellRendererSelector && colDef.cellRendererParams) {
-                    // Relations
-                    if ("colRelations" in colDef.cellRendererParams) {
-                        const relations = colDef.cellRendererParams.colRelations || {}
-                        updatedData[field] = relations[targetNode.data.id]?.map(r => r.id) || []
-                    }
-
-                    // Enumerations
-                    if ("colEnumerations" in colDef.cellRendererParams) {
-                        const enumerations = colDef.cellRendererParams.colEnumerations || {}
-                        updatedData[field] = enumerations[targetNode.data.id]?.selected
-                    }
-
-                    // Dates
-                    if ("colDate" in colDef.cellRendererParams) {
-                        const dateData = colDef.cellRendererParams.colDate || {}
-                        updatedData[field] = dateData[targetNode.data.id]?.date
-                    }
+                // Check if targetNode exists (it should exist, otherwise there's some problem)
+                if (!targetNode) {
+                    throw new Error("Could not find the row being edited")
                 }
-            })
+                
+                // Setup updatedData; omit fields that are not to be updated, and assign remaining data to updatedData
+                const updatedData = Object.keys(targetNode.data)
+                    .reduce((acc, key) => {
+                        if (!isReservedColumn(key)) {
+                            acc[key] = targetNode.data[key]
+                        }
 
-            // Make PUT request to backend
-            await axios.put(
-                `${API_BASE_URL}/api/${mainPluralName}/${targetNode.data.documentId}`,
-                { data: updatedData },
-                {
-                    headers: {
-                        Authorization: `Bearer ${user.token}`
+                        return acc
+                    
+                    }, {})
+
+                // Get custom cells value
+                const columns = gridApiRef.current.getAllGridColumns()
+
+                columns.forEach(column => {
+                    const colDef = column.getColDef()
+                    const field = column.getColId()
+
+                    if (colDef.cellRendererSelector && colDef.cellRendererParams) {
+                        // Relations
+                        if ("colRelations" in colDef.cellRendererParams) {
+                            const relations = colDef.cellRendererParams.colRelations || {}
+                            updatedData[field] = relations[targetNode.data.id]?.map(r => r.id) || []
+                        }
+
+                        // Enumerations
+                        if ("colEnumerations" in colDef.cellRendererParams) {
+                            const enumerations = colDef.cellRendererParams.colEnumerations || {}
+                            updatedData[field] = enumerations[targetNode.data.id]?.selected
+                        }
+
+                        // Dates
+                        if ("colDate" in colDef.cellRendererParams) {
+                            const dateData = colDef.cellRendererParams.colDate || {}
+                            updatedData[field] = dateData[targetNode.data.id]?.date
+                        }
                     }
-                }
-            )
+                })
 
-            notifications.show({
-                title: "Success",
-                message: "Data updated successfully!",
-                color: "green"
-            })
+                // Make PUT request to backend
+                await axios.put(
+                    `${API_BASE_URL}/api/${mainPluralName}/${targetNode.data.documentId}`,
+                    { data: updatedData },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user.token}`
+                        }
+                    }
+                )
 
-            resetState()
+                notifications.show({
+                    title: "Success",
+                    message: "Data updated successfully!",
+                    color: "green"
+                })
+
+                resetState()
+            }
         }
         catch (error) {
             console.error("Error updating data:", error)
@@ -128,10 +132,10 @@ export function useGridEdit() {
     }
 
     return {
-        editingRowId,
+        editingRowIds,
         showEditModal,
         isSaving,
-        handleOnCellDoubleClicked,
+        handleEditInitiate,
         handleEditConfirm,
         handleSaveChanges,
         handleCancelEdit,
@@ -140,8 +144,8 @@ export function useGridEdit() {
 }
 
 
-export const getEditRowStyle = (editingRowId) => (params) => {
-    if (params.data.id === editingRowId) {
+export const getEditRowStyle = (editingRowIds) => (params) => {
+    if (editingRowIds?.includes(params.data.id)) {
         return { 
             backgroundColor: 'var(--mantine-color-blue-1)',
             borderBottom: '1px solid var(--mantine-color-blue-3)',
