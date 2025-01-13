@@ -46,12 +46,13 @@ export function constructFilteredUrl(modelName, documentId) {
 
 export function getBasePopulateUrl(url) {
     try {
-        const urlObj = new URL(url)
+        const netlifyTempUrl = "https://strong-custard-a619bd.netlify.app"
+        const urlObj = new URL(url.startsWith("/api") ? netlifyTempUrl + url : url)
 
         // /api/transfers/w0oi6ry85c9q4vblmgf6cuiv => ["", "api", "transfers", "w0oi6ry85c9q4vblmgf6cuiv"]
         const pathSegments = urlObj.pathname.split("/")
 
-        if (pathSegments.length === 4) {
+        if (pathSegments.length === 5) {
             pathSegments.pop()
         }
 
@@ -61,11 +62,11 @@ export function getBasePopulateUrl(url) {
         const populate = urlObj.searchParams.get('populate')
 
         return populate ?
-            `${urlObj.origin}${updatedPathname}?populate=${populate}` :
-            `${urlObj.origin}${updatedPathname}`
+            `${urlObj.origin}${updatedPathname}?populate=${populate}`.replace(netlifyTempUrl, "") :
+            `${urlObj.origin}${updatedPathname}`.replace(netlifyTempUrl, "")
     }
     catch(error) {
-        console.log("Invalid URL:", error)
+        console.log("Invalid URL:", url)
         return null
     }
 }
