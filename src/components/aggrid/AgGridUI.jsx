@@ -15,6 +15,8 @@ import CellEnumerationRead from './custom-cells/CellEnumerationRead'
 import CellDateRead from './custom-cells/CellDateRead'
 import CellDateWrite from './custom-cells/CellDateWrite'
 import Toolbar from './Toolbar'
+import DeleteConfirmationModal from './modals/DeleteConfirmationModal'
+import { useGridDelete } from './hooks/useGridDelete'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
@@ -33,6 +35,16 @@ export default function AgGridUI({ url, onButtonClick }) {
         handleCancelEdit,
         setShowEditModal
     } = useGridEdit()
+
+    const {
+        isDeleting,
+        showDeleteModal,
+        deletingRowDocIds,
+        handleDeleteInitiate,
+        handleDelete,
+        handleCancelDelete,
+        setShowDeleteModal
+    } = useGridDelete()
 
     useEffect(() => {
         async function fetchData() {
@@ -284,7 +296,7 @@ export default function AgGridUI({ url, onButtonClick }) {
 
         fetchData()
 
-    }, [url, onButtonClick, editingRowIds])
+    }, [url, onButtonClick, editingRowIds, deletingRowDocIds])
 
     const onSelectionChanged = useCallback((params) => {
         const gridAPI = params.api
@@ -299,7 +311,7 @@ export default function AgGridUI({ url, onButtonClick }) {
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
             <LoadingOverlay 
-                visible={isSaving} 
+                visible={isSaving || isDeleting} 
                 zIndex={1000}
                 overlayProps={{ radius: "sm", blur: 2 }}
                 loaderProps={{ color: 'blue', type: 'bars' }}
@@ -308,9 +320,11 @@ export default function AgGridUI({ url, onButtonClick }) {
                 selectionData={selectionData}
                 isEditing={editingRowIds !== null}
                 handleEdit={() => handleEditInitiate(selectionData)}
+                handleDelete={() => handleDeleteInitiate(selectionData)}
+
                 onSave={() => handleSaveChanges(mainPluralName)}
                 onCancel={handleCancelEdit}
-                disabled={isSaving}
+                disabled={isSaving || isDeleting}
             />
             <div style={{ flex: 1 }}>
                 <AgGridReact
@@ -326,6 +340,11 @@ export default function AgGridUI({ url, onButtonClick }) {
                 isOpen={showEditModal}
                 onClose={() => setShowEditModal(false)}
                 onConfirm={() => handleEditConfirm()}
+            />
+            <DeleteConfirmationModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={() => handleDelete(mainPluralName)}
             />
         </div>
     )

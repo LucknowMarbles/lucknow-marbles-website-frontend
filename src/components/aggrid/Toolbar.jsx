@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
 import EditActions from './EditActions'
 
-export default function Toolbar({ selectionData = {}, isEditing, handleEdit, onSave, onCancel, disabled }) {
+export default function Toolbar({ selectionData = {}, isEditing, handleEdit, handleDelete, onSave, onCancel, disabled }) {
   const selectedRows = selectionData.selectedRows
   const hasSelection = selectedRows? selectedRows.length > 0 : 0
 
@@ -38,8 +38,9 @@ export default function Toolbar({ selectionData = {}, isEditing, handleEdit, onS
             color="red"
             variant="light"
             leftSection={<FontAwesomeIcon icon={faTrash} />}
+            onClick={handleDelete}
           >
-            Remove {selectedRows?.length > 1 ? `(${selectedRows.length} items)` : ''}
+            Delete {selectedRows?.length > 1 ? `(${selectedRows.length} items)` : ''}
           </Button>
         </>
       )}
