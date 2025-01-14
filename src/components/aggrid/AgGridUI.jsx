@@ -22,6 +22,7 @@ import { getAddRowStyle, useGridAdd } from './hooks/useGridAdd'
 
 export default function AgGridUI({ url, onButtonClick }) {
     const { user, apiUrls } = useAuth()
+    const [gridApi, setGridApi] = useState(null)
     const [mainPluralName, setMainPluralName] = useState("")
     const [rowData, setRowData] = useState([]) // [{ greet: "Hello, world!" }]
     const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: CellRelationRead }]
@@ -308,15 +309,14 @@ export default function AgGridUI({ url, onButtonClick }) {
 
     }, [url, onButtonClick, editingRowIds, deletingRowDocIds])
 
-    const onSelectionChanged = useCallback((params) => {
-        const gridAPI = params.api
-        const selectedNodes = gridAPI.getSelectedNodes()
+    const onSelectionChanged = () => {
+        const selectedNodes = gridApi.getSelectedNodes()
 
         setSelectionData({
             selectedRows: selectedNodes.map(node => node.data),
-            gridApi: gridAPI
+            gridApi: gridApi
         })
-    }, [])
+    }
 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -337,7 +337,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                 onSave={() => handleSaveChanges(mainPluralName)}
                 onCancel={handleCancelEdit}
 
-                onAddSave={() => handleAddSaveChanges(mainPluralName)}
+                onAddSave={() => handleAddSaveChanges(mainPluralName, gridApi)}
                 onAddNew={() => handleAddMore(mainPluralName, rowData, setRowData, colDefs, setColDefs)}
                 onAddCancel={() => handleAddCancel(rowData, setRowData, colDefs, setColDefs)}
 
@@ -351,6 +351,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                     rowSelection={editingRowIds === null && newRowIds === null ? { mode: "multiRow" } : false}
                     getRowStyle={editingRowIds && getEditRowStyle(editingRowIds) || newRowIds && getAddRowStyle(newRowIds)}
                     onSelectionChanged={onSelectionChanged}
+                    onGridReady={params => setGridApi(params.api)}
                 />
             </div>
             <EditConfirmationModal 

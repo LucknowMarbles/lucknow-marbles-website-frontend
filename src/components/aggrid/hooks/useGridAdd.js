@@ -2,12 +2,14 @@ import { useRef, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { notifications } from "@mantine/notifications";
 import { constructUrl, isReservedAndDatetimeColumn, isReservedColumn } from "../utils";
+import axios from "axios";
+import { API_BASE_URL } from "../../../config/config";
 
 export function useGridAdd() {
     const { user, apiUrls } = useAuth()
     const [newRowIds, setNewRowIds] = useState(null)
     const [isConfirming, setIsConfirming] = useState(false)
-    const gridApiRef = useRef(null)
+
 
     function resetState() {
         setNewRowIds(null)
@@ -28,7 +30,7 @@ export function useGridAdd() {
                 newRow[key] = "..."
             }
             else if (isReservedAndDatetimeColumn(key)) {
-                newRow[key] = Date.now()
+                newRow[key] = "2000-01-01T00:00:00.000Z"
             }
         })
 
@@ -59,7 +61,7 @@ export function useGridAdd() {
 
                 else if (schema?.type === "datetime" && col.cellRendererParams.colDate) {
                     col.cellRendererParams.colDate[newId] = {
-                        date: Date.now()
+                        date: new Date().toISOString()
                     }
                 }
 
@@ -95,12 +97,81 @@ export function useGridAdd() {
         addNewRow(mainPluralName, currentRowData, setRowData, colDefs, setColDefs)
     }
 
-    async function handleAddSaveChanges(mainPluralName) {
+    async function handleAddSaveChanges(mainPluralName, gridApi) {
         setIsConfirming(true)
 
         try {
+            for (const rowId of newRowIds) {
+                const rowNodes = []
 
-            await new Promise(resolve => setTimeout(resolve, 2000))
+                // Collect all row nodes
+                gridApi.forEachNode(node => rowNodes.push(node))
+
+                // Find the target row node
+                const targetNode = rowNodes.find(node => node.data.id === rowId)
+
+                // Check if targetNode exists
+                if (!targetNode) {
+                    throw new Error("Could not find the row being edited")
+                }
+
+                // Setup updatedData; omit fields that are not to be updated, and assign remaining data to updatedData
+                const updatedData = Object.keys(targetNode.data)
+                    .reduce((acc, key) => {
+                        if (!isReservedColumn(key)) {
+                            acc[key] = targetNode.data[key]
+                        }
+
+                        return acc
+                    
+                    }, {})
+                
+                // Get custom cells value
+                const columns = gridApi.getAllGridColumns()
+
+                columns.forEach(column => {
+                    const colDef = column.getColDef()
+                    const field = column.getColId()
+
+                    if (colDef.cellRendererSelector && colDef.cellRendererParams) {
+                        // Relations
+                        if ("colRelations" in colDef.cellRendererParams) {
+                            const relations = colDef.cellRendererParams.colRelations || {}
+                            updatedData[field] = relations[targetNode.data.id]?.map(r => r.id) || []
+                        }
+
+                        // Enumerations
+                        if ("colEnumerations" in colDef.cellRendererParams) {
+                            const enumerations = colDef.cellRendererParams.colEnumerations || {}
+                            updatedData[field] = enumerations[targetNode.data.id]?.selected
+                        }
+
+                        // Dates
+                        if ("colDate" in colDef.cellRendererParams) {
+                            const dateData = colDef.cellRendererParams.colDate || {}
+                            updatedData[field] = dateData[targetNode.data.id]?.date
+                        }
+                    }
+                })
+
+                // Make POST request to backend
+                await axios.post(
+                    `${API_BASE_URL}/api/${mainPluralName}`,
+                    { data: updatedData },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user.token}`
+                        }
+                    }
+                )
+            }
+
+            notifications.show({
+                title: "Success",
+                message: "Data added successfully!",
+                color: "green"
+            })
+
             resetState()
         }
         catch (error) {
