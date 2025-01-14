@@ -104,15 +104,15 @@ export function useGridEdit() {
                         }
                     }
                 )
-
-                notifications.show({
-                    title: "Success",
-                    message: "Data updated successfully!",
-                    color: "green"
-                })
-
-                resetState()
             }
+
+            notifications.show({
+                title: "Success",
+                message: "Data updated successfully!",
+                color: "green"
+            })
+
+            resetState()
         }
         catch (error) {
             console.error("Error updating data:", error)
