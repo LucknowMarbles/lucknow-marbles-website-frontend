@@ -51,6 +51,7 @@ export default function AgGridUI({ url, onButtonClick }) {
     const {
         newRowIds,
         isConfirming,
+        addRefresh,
         handleAddInitiate,
         handleAddMore,
         handleAddSaveChanges,
@@ -307,7 +308,7 @@ export default function AgGridUI({ url, onButtonClick }) {
 
         fetchData()
 
-    }, [url, onButtonClick, editingRowIds, deletingRowDocIds])
+    }, [url, onButtonClick, editingRowIds, deletingRowDocIds, addRefresh])
 
     const onSelectionChanged = () => {
         const selectedNodes = gridApi.getSelectedNodes()

@@ -9,10 +9,12 @@ export function useGridAdd() {
     const { user, apiUrls } = useAuth()
     const [newRowIds, setNewRowIds] = useState(null)
     const [isConfirming, setIsConfirming] = useState(false)
+    const [addRefresh, setAddRefresh] = useState(0)
 
 
     function resetState() {
         setNewRowIds(null)
+        setAddRefresh(addRefresh + 1)
     }
 
 
@@ -195,6 +197,7 @@ export function useGridAdd() {
     return {
         newRowIds,
         isConfirming,
+        addRefresh,
         handleAddInitiate,
         handleAddMore,
         handleAddSaveChanges,
