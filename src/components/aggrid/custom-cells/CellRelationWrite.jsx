@@ -42,7 +42,7 @@ export default function CellRelationWrite(props) {
 
                     // Set selected option
                     const selection = colDef.cellRendererParams?.colRelations?.[data.id]
-                    setSelectedItem(selection[0].id.toString())
+                    setSelectedItem(selection && selection.length > 0 ? selection[0].id.toString() : "")
                 }
             }
             catch (error) {

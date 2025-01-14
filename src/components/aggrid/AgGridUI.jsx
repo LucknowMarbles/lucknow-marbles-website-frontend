@@ -17,6 +17,7 @@ import CellDateWrite from './custom-cells/CellDateWrite'
 import Toolbar from './Toolbar'
 import DeleteConfirmationModal from './modals/DeleteConfirmationModal'
 import { useGridDelete } from './hooks/useGridDelete'
+import { getAddRowStyle, useGridAdd } from './hooks/useGridAdd'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
@@ -45,6 +46,15 @@ export default function AgGridUI({ url, onButtonClick }) {
         handleCancelDelete,
         setShowDeleteModal
     } = useGridDelete()
+
+    const {
+        newRowIds,
+        isConfirming,
+        handleAddInitiate,
+        handleAddMore,
+        handleAddSaveChanges,
+        handleAddCancel
+    } = useGridAdd()
 
     useEffect(() => {
         async function fetchData() {
@@ -205,7 +215,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererSelector: params => {
                                     const cellRenderer = params.colDef.cellRendererParams.colRelations.cellRenderer
 
-                                    if (editingRowIds?.includes(params.data.id)) {
+                                    if (editingRowIds?.includes(params.data.id) || params.data.id < 0) {
                                         return {
                                             component: cellRenderer
                                         }
@@ -231,7 +241,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererSelector: params => {
                                     const cellRenderer = params.colDef.cellRendererParams.colEnumerations.cellRenderer
 
-                                    if (editingRowIds?.includes(params.data.id)) {
+                                    if (editingRowIds?.includes(params.data.id) || params.data.id < 0) {
                                         return {
                                             component: cellRenderer
                                         }
@@ -256,7 +266,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererSelector: params => {
                                     const cellRenderer = params.colDef.cellRendererParams.colDate.cellRenderer
 
-                                    if (editingRowIds?.includes(params.data.id)) {
+                                    if (editingRowIds?.includes(params.data.id) || params.data.id < 0) {
                                         return {
                                             component: cellRenderer
                                         }
@@ -277,7 +287,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                         return {
                             field: key,
                             filter: true,
-                            editable: params => editingRowIds?.includes(params.data.id)
+                            editable: params => editingRowIds?.includes(params.data.id) || params.data.id < 0
                         }
                     })
                 }
@@ -311,7 +321,7 @@ export default function AgGridUI({ url, onButtonClick }) {
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
             <LoadingOverlay 
-                visible={isSaving || isDeleting} 
+                visible={isSaving || isDeleting || isConfirming} 
                 zIndex={1000}
                 overlayProps={{ radius: "sm", blur: 2 }}
                 loaderProps={{ color: 'blue', type: 'bars' }}
@@ -319,20 +329,27 @@ export default function AgGridUI({ url, onButtonClick }) {
             <Toolbar
                 selectionData={selectionData}
                 isEditing={editingRowIds !== null}
+                isAdding={newRowIds !== null}
                 handleEdit={() => handleEditInitiate(selectionData)}
                 handleDelete={() => handleDeleteInitiate(selectionData)}
+                handleAdd={() => handleAddInitiate(mainPluralName, rowData, setRowData, colDefs, setColDefs)}
 
                 onSave={() => handleSaveChanges(mainPluralName)}
                 onCancel={handleCancelEdit}
-                disabled={isSaving || isDeleting}
+
+                onAddSave={() => handleAddSaveChanges(mainPluralName)}
+                onAddNew={() => handleAddMore(mainPluralName, rowData, setRowData, colDefs, setColDefs)}
+                onAddCancel={() => handleAddCancel(rowData, setRowData, colDefs, setColDefs)}
+
+                disabled={isSaving || isDeleting || isConfirming}
             />
             <div style={{ flex: 1 }}>
                 <AgGridReact
                     rowData={rowData}
                     columnDefs={colDefs}
                     domLayout="normal"
-                    rowSelection={editingRowIds === null ? { mode: "multiRow" } : false}
-                    getRowStyle={getEditRowStyle(editingRowIds)}
+                    rowSelection={editingRowIds === null && newRowIds === null ? { mode: "multiRow" } : false}
+                    getRowStyle={editingRowIds && getEditRowStyle(editingRowIds) || newRowIds && getAddRowStyle(newRowIds)}
                     onSelectionChanged={onSelectionChanged}
                 />
             </div>
