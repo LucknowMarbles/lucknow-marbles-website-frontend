@@ -15,10 +15,17 @@ import CellEnumerationRead from './custom-cells/CellEnumerationRead'
 import CellDateRead from './custom-cells/CellDateRead'
 import CellDateWrite from './custom-cells/CellDateWrite'
 import Toolbar from './Toolbar'
+import DeleteConfirmationModal from './modals/DeleteConfirmationModal'
+import { useGridDelete } from './hooks/useGridDelete'
+import { getAddRowStyle, useGridAdd } from './hooks/useGridAdd'
+import CellMediaRead from './custom-cells/CellMediaRead'
+import CellMediaWrite from './custom-cells/CellMediaWrite'
+import { API_BASE_URL } from '../../config/config'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
     const { user, apiUrls } = useAuth()
+    const [gridApi, setGridApi] = useState(null)
     const [mainPluralName, setMainPluralName] = useState("")
     const [rowData, setRowData] = useState([]) // [{ greet: "Hello, world!" }]
     const [colDefs, setColDefs] = useState([]) // [{ field: "greet", filter: true, editable: true, cellRenderer: CellRelationRead }]
@@ -34,6 +41,26 @@ export default function AgGridUI({ url, onButtonClick }) {
         setShowEditModal
     } = useGridEdit()
 
+    const {
+        isDeleting,
+        showDeleteModal,
+        deletingRowDocIds,
+        handleDeleteInitiate,
+        handleDelete,
+        handleCancelDelete,
+        setShowDeleteModal
+    } = useGridDelete()
+
+    const {
+        newRowIds,
+        isConfirming,
+        addRefresh,
+        handleAddInitiate,
+        handleAddMore,
+        handleAddSaveChanges,
+        handleAddCancel
+    } = useGridAdd()
+
     useEffect(() => {
         async function fetchData() {
             try {
@@ -48,6 +75,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                 const allRelations = {}
                 const allEnumerations = {}
                 const allDates = {}
+                const allMedias = {}
 
                 // Get attributes (cols type)
                 const basePopulateUrl = getBasePopulateUrl(url)
@@ -155,8 +183,33 @@ export default function AgGridUI({ url, onButtonClick }) {
                             allDates[key]["cellRenderer"] = CellDateWrite
                         }
 
-                        else if (key === "Image" && Array.isArray(rowObj[key])) {
-                            row[key] = rowObj[key][0]?.url || null // Display image url if found
+                        else if (attributeType === "media") {
+                            let mediaId = null
+                            let mediaName = "Not Set"
+                            let mediaUrl = ""
+                            
+                            if (rowObj[key] && Array.isArray(rowObj[key]) && rowObj[key].length > 0) {
+                                const mediaData = rowObj[key][0]
+                                mediaId = mediaData?.id
+                                mediaName = mediaData?.formats?.large?.name
+                                mediaUrl = mediaData?.formats?.large?.url
+                            }
+
+                            if (!allMedias[key]) {
+                                allMedias[key] = {}
+                            }
+
+                            allMedias[key][rowObj.id] = {
+                                "mediaId": mediaId,
+                                "name": mediaName,
+                                "url": mediaUrl === ""? "" : `${API_BASE_URL}${mediaUrl}`
+                            }
+
+                            // Set cell display value
+                            row[key] = mediaName
+
+                            // Add cellRenderer information (for edit mode)
+                            allMedias[key]["cellRenderer"] = CellMediaWrite
                         }
 
                         else {
@@ -193,7 +246,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererSelector: params => {
                                     const cellRenderer = params.colDef.cellRendererParams.colRelations.cellRenderer
 
-                                    if (editingRowIds?.includes(params.data.id)) {
+                                    if (editingRowIds?.includes(params.data.id) || params.data.id < 0) {
                                         return {
                                             component: cellRenderer
                                         }
@@ -219,7 +272,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererSelector: params => {
                                     const cellRenderer = params.colDef.cellRendererParams.colEnumerations.cellRenderer
 
-                                    if (editingRowIds?.includes(params.data.id)) {
+                                    if (editingRowIds?.includes(params.data.id) || params.data.id < 0) {
                                         return {
                                             component: cellRenderer
                                         }
@@ -244,7 +297,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 cellRendererSelector: params => {
                                     const cellRenderer = params.colDef.cellRendererParams.colDate.cellRenderer
 
-                                    if (editingRowIds?.includes(params.data.id)) {
+                                    if (editingRowIds?.includes(params.data.id) || params.data.id < 0) {
                                         return {
                                             component: cellRenderer
                                         }
@@ -262,10 +315,35 @@ export default function AgGridUI({ url, onButtonClick }) {
                             }
                         }
 
+                        if (allMedias.hasOwnProperty(key)) {
+                            return {
+                                field: key,
+                                filter: true,
+                                cellRendererSelector: params => {
+                                    const cellRenderer = params.colDef.cellRendererParams.colMedia.cellRenderer
+
+                                    if (editingRowIds?.includes(params.data.id) || params.data.id < 0) {
+                                        return {
+                                            component: cellRenderer
+                                        }
+                                    }
+                                    else {
+                                        return {
+                                            component: CellMediaRead
+                                        }
+                                    }
+                                },
+                                cellRendererParams: {
+                                    colMedia: allMedias[key]
+                                },
+                                autoHeight: true
+                            }
+                        }
+
                         return {
                             field: key,
                             filter: true,
-                            editable: params => editingRowIds?.includes(params.data.id)
+                            editable: params => editingRowIds?.includes(params.data.id) || params.data.id < 0
                         }
                     })
                 }
@@ -284,22 +362,21 @@ export default function AgGridUI({ url, onButtonClick }) {
 
         fetchData()
 
-    }, [url, onButtonClick, editingRowIds])
+    }, [url, onButtonClick, editingRowIds, deletingRowDocIds, addRefresh])
 
-    const onSelectionChanged = useCallback((params) => {
-        const gridAPI = params.api
-        const selectedNodes = gridAPI.getSelectedNodes()
+    const onSelectionChanged = () => {
+        const selectedNodes = gridApi.getSelectedNodes()
 
         setSelectionData({
             selectedRows: selectedNodes.map(node => node.data),
-            gridApi: gridAPI
+            gridApi: gridApi
         })
-    }, [])
+    }
 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
             <LoadingOverlay 
-                visible={isSaving} 
+                visible={isSaving || isDeleting || isConfirming} 
                 zIndex={1000}
                 overlayProps={{ radius: "sm", blur: 2 }}
                 loaderProps={{ color: 'blue', type: 'bars' }}
@@ -307,25 +384,40 @@ export default function AgGridUI({ url, onButtonClick }) {
             <Toolbar
                 selectionData={selectionData}
                 isEditing={editingRowIds !== null}
+                isAdding={newRowIds !== null}
                 handleEdit={() => handleEditInitiate(selectionData)}
+                handleDelete={() => handleDeleteInitiate(selectionData)}
+                handleAdd={() => handleAddInitiate(mainPluralName, rowData, setRowData, colDefs, setColDefs)}
+
                 onSave={() => handleSaveChanges(mainPluralName)}
                 onCancel={handleCancelEdit}
-                disabled={isSaving}
+
+                onAddSave={() => handleAddSaveChanges(mainPluralName, gridApi)}
+                onAddNew={() => handleAddMore(mainPluralName, rowData, setRowData, colDefs, setColDefs)}
+                onAddCancel={() => handleAddCancel(rowData, setRowData, colDefs, setColDefs)}
+
+                disabled={isSaving || isDeleting || isConfirming}
             />
             <div style={{ flex: 1 }}>
                 <AgGridReact
                     rowData={rowData}
                     columnDefs={colDefs}
                     domLayout="normal"
-                    rowSelection={editingRowIds === null ? { mode: "multiRow" } : false}
-                    getRowStyle={getEditRowStyle(editingRowIds)}
+                    rowSelection={editingRowIds === null && newRowIds === null ? { mode: "multiRow" } : false}
+                    getRowStyle={editingRowIds && getEditRowStyle(editingRowIds) || newRowIds && getAddRowStyle(newRowIds)}
                     onSelectionChanged={onSelectionChanged}
+                    onGridReady={params => setGridApi(params.api)}
                 />
             </div>
             <EditConfirmationModal 
                 isOpen={showEditModal}
                 onClose={() => setShowEditModal(false)}
                 onConfirm={() => handleEditConfirm()}
+            />
+            <DeleteConfirmationModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={() => handleDelete(mainPluralName)}
             />
         </div>
     )

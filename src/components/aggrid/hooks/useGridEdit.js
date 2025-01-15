@@ -91,6 +91,12 @@ export function useGridEdit() {
                             const dateData = colDef.cellRendererParams.colDate || {}
                             updatedData[field] = dateData[targetNode.data.id]?.date
                         }
+
+                        // Media
+                        if ("colMedia" in colDef.cellRendererParams) {
+                            const mediaData = colDef.cellRendererParams.colMedia || {}
+                            updatedData[field] = mediaData?.[targetNode.data.id]?.mediaId || []
+                        }
                     }
                 })
 
@@ -104,15 +110,15 @@ export function useGridEdit() {
                         }
                     }
                 )
-
-                notifications.show({
-                    title: "Success",
-                    message: "Data updated successfully!",
-                    color: "green"
-                })
-
-                resetState()
             }
+
+            notifications.show({
+                title: "Success",
+                message: "Data updated successfully!",
+                color: "green"
+            })
+
+            resetState()
         }
         catch (error) {
             console.error("Error updating data:", error)
