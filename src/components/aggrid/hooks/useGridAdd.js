@@ -70,6 +70,14 @@ export function useGridAdd() {
                 else if (schema?.type === "relation" && col.cellRendererParams.colRelations) {
                     col.cellRendererParams.colRelations[newId] = []
                 }
+
+                else if (schema?.type === "media" && col.cellRendererParams.colMedia) {
+                    col.cellRendererParams.colMedia[newId] = {
+                        mediaId: null,
+                        name: "Not Set",
+                        url: ""
+                    }
+                }
             }
         }
 
@@ -152,6 +160,12 @@ export function useGridAdd() {
                         if ("colDate" in colDef.cellRendererParams) {
                             const dateData = colDef.cellRendererParams.colDate || {}
                             updatedData[field] = dateData[targetNode.data.id]?.date
+                        }
+
+                        // Media
+                        if ("colMedia" in colDef.cellRendererParams) {
+                            const mediaData = colDef.cellRendererParams.colMedia || {}
+                            updatedData[field] = mediaData?.[targetNode.data.id]?.mediaId || []
                         }
                     }
                 })

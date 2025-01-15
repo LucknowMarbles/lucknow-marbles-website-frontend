@@ -18,6 +18,9 @@ import Toolbar from './Toolbar'
 import DeleteConfirmationModal from './modals/DeleteConfirmationModal'
 import { useGridDelete } from './hooks/useGridDelete'
 import { getAddRowStyle, useGridAdd } from './hooks/useGridAdd'
+import CellMediaRead from './custom-cells/CellMediaRead'
+import CellMediaWrite from './custom-cells/CellMediaWrite'
+import { API_BASE_URL } from '../../config/config'
 
 
 export default function AgGridUI({ url, onButtonClick }) {
@@ -72,6 +75,7 @@ export default function AgGridUI({ url, onButtonClick }) {
                 const allRelations = {}
                 const allEnumerations = {}
                 const allDates = {}
+                const allMedias = {}
 
                 // Get attributes (cols type)
                 const basePopulateUrl = getBasePopulateUrl(url)
@@ -179,8 +183,33 @@ export default function AgGridUI({ url, onButtonClick }) {
                             allDates[key]["cellRenderer"] = CellDateWrite
                         }
 
-                        else if (key === "Image" && Array.isArray(rowObj[key])) {
-                            row[key] = rowObj[key][0]?.url || null // Display image url if found
+                        else if (attributeType === "media") {
+                            let mediaId = null
+                            let mediaName = "Not Set"
+                            let mediaUrl = ""
+                            
+                            if (rowObj[key] && Array.isArray(rowObj[key]) && rowObj[key].length > 0) {
+                                const mediaData = rowObj[key][0]
+                                mediaId = mediaData?.id
+                                mediaName = mediaData?.formats?.large?.name
+                                mediaUrl = mediaData?.formats?.large?.url
+                            }
+
+                            if (!allMedias[key]) {
+                                allMedias[key] = {}
+                            }
+
+                            allMedias[key][rowObj.id] = {
+                                "mediaId": mediaId,
+                                "name": mediaName,
+                                "url": mediaUrl === ""? "" : `${API_BASE_URL}${mediaUrl}`
+                            }
+
+                            // Set cell display value
+                            row[key] = mediaName
+
+                            // Add cellRenderer information (for edit mode)
+                            allMedias[key]["cellRenderer"] = CellMediaWrite
                         }
 
                         else {
@@ -281,6 +310,31 @@ export default function AgGridUI({ url, onButtonClick }) {
                                 },
                                 cellRendererParams: {
                                     colDate: allDates[key]
+                                },
+                                autoHeight: true
+                            }
+                        }
+
+                        if (allMedias.hasOwnProperty(key)) {
+                            return {
+                                field: key,
+                                filter: true,
+                                cellRendererSelector: params => {
+                                    const cellRenderer = params.colDef.cellRendererParams.colMedia.cellRenderer
+
+                                    if (editingRowIds?.includes(params.data.id) || params.data.id < 0) {
+                                        return {
+                                            component: cellRenderer
+                                        }
+                                    }
+                                    else {
+                                        return {
+                                            component: CellMediaRead
+                                        }
+                                    }
+                                },
+                                cellRendererParams: {
+                                    colMedia: allMedias[key]
                                 },
                                 autoHeight: true
                             }

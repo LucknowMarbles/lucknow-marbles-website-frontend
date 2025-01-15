@@ -91,6 +91,12 @@ export function useGridEdit() {
                             const dateData = colDef.cellRendererParams.colDate || {}
                             updatedData[field] = dateData[targetNode.data.id]?.date
                         }
+
+                        // Media
+                        if ("colMedia" in colDef.cellRendererParams) {
+                            const mediaData = colDef.cellRendererParams.colMedia || {}
+                            updatedData[field] = mediaData?.[targetNode.data.id]?.mediaId || []
+                        }
                     }
                 })
 
